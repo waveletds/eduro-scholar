@@ -11,6 +11,8 @@ import { ModerationDashboard } from './components/admin/ModerationDashboard';
 import { WalletPage } from './components/wallet/WalletPage';
 import { VTUPage } from './components/vtu/VTUPage';
 import { ContestPage } from './components/contest/ContestPage';
+import { ProfilePage } from './components/profile/ProfilePage';
+import { CommunityPage } from './components/community/CommunityPage';
 import { CheckCircle2, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -74,6 +76,12 @@ export default function App() {
       
       case 'contest':
         return <ContestPage profile={profile} onStartPractice={(subject) => setSelectedSubject(subject)} />;
+      
+      case 'profile':
+        return <ProfilePage profile={profile} />;
+      
+      case 'community':
+        return <CommunityPage profile={profile} />;
       
       case 'moderation':
         return profile.role === 'admin' ? <ModerationDashboard /> : null;

@@ -21,13 +21,25 @@ async function testConnection() {
 
 testConnection();
 
+let isAuthenticating = false;
+
 export const loginWithGoogle = async () => {
+  if (isAuthenticating) return;
+  
+  isAuthenticating = true;
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
-  } catch (error) {
+  } catch (error: any) {
+    // Ignore cases where the user just closes the popup
+    if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+      console.log("Login cancelled by user");
+      return;
+    }
     console.error("Login failed:", error);
     throw error;
+  } finally {
+    isAuthenticating = false;
   }
 };
 

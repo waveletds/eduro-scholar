@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Wallet, 
   ArrowUpRight, 
@@ -9,9 +9,14 @@ import {
   History,
   Info,
   CreditCard,
-  Building
+  Building,
+  Copy,
+  Check,
+  Send,
+  ArrowRight
 } from 'lucide-react';
 import { TransactionHistory } from './TransactionHistory';
+import { dbService } from '../../services/dbService';
 
 interface WalletPageProps {
   profile: any;
@@ -19,6 +24,43 @@ interface WalletPageProps {
 
 export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview');
+  const [monnifyAccount, setMonnifyAccount] = useState<any>(null);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferData, setTransferData] = useState({ targetId: '', amount: '' });
+  const [isTransferring, setIsTransferring] = useState(false);
+  const [transferError, setTransferError] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    loadVirtualAccount();
+  }, [profile.uid]);
+
+  const loadVirtualAccount = async () => {
+    const data = await dbService.getVirtualAccount(profile.uid, profile.displayName, profile.email);
+    if (data) setMonnifyAccount(data);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleTransfer = async () => {
+    if (!transferData.targetId || !transferData.amount) return;
+    setIsTransferring(true);
+    setTransferError('');
+    try {
+      await dbService.transferWallet(profile.uid, transferData.targetId, Number(transferData.amount));
+      setShowTransferModal(false);
+      setTransferData({ targetId: '', amount: '' });
+      // In a real app we'd refresh profile balance via context or snapshot
+    } catch (err: any) {
+      setTransferError(err.message);
+    } finally {
+      setIsTransferring(false);
+    }
+  };
 
   return (
     <div className="space-y-12 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -43,8 +85,8 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
                   <Wallet size={28} />
                 </div>
                 <div className="text-right">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-white/30">Main Wallet</p>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mt-1">Active</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-white/30">Scholar Wallet</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-accent mt-1">Ref: {profile.walletId || '---'}</p>
                 </div>
               </div>
               
@@ -59,53 +101,63 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
                  <motion.button 
                    whileHover={{ scale: 1.02 }}
                    whileTap={{ scale: 0.98 }}
+                   onClick={() => setActiveTab('overview')}
                    className="bg-white text-primary py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-accent"
                  >
-                    <ArrowDownLeft size={16} /> Recharge
+                    <ArrowDownLeft size={16} /> Fund
                  </motion.button>
                  <motion.button 
                    whileHover={{ scale: 1.02 }}
                    whileTap={{ scale: 0.98 }}
+                   onClick={() => setShowTransferModal(true)}
                    className="bg-white/10 text-white backdrop-blur-md py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 border border-white/10 hover:bg-white/20 transition-all"
                  >
-                    <ArrowUpRight size={16} /> Withdraw
+                    <Send size={16} /> Send
                  </motion.button>
               </div>
             </div>
             
-            {/* Background Decorations */}
             <div className="absolute top-0 right-0 w-80 h-80 bg-accent/20 rounded-full blur-[120px] -mr-32 -mt-32"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] -ml-24 -mb-24"></div>
           </motion.div>
 
-          <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-8">
-             <h3 className="font-bold flex items-center gap-3 text-slate-400 text-[10px] uppercase tracking-widest">
-                <Info size={16} /> Wallet Information
-             </h3>
-             <div className="space-y-6">
-                <div className="flex items-start gap-5 group">
-                   <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 border border-white group-hover:bg-emerald-100 transition-colors">
-                      <ShieldCheck size={24} className="text-emerald-500" />
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Secure Payments</p>
-                      <p className="text-[10px] text-slate-400 font-medium leading-relaxed uppercase">
-                        All withdrawals are verified before payout processing.
-                      </p>
-                   </div>
+          {/* Monnify Dedicated Account Card */}
+          <div className="bg-emerald-50 rounded-[40px] p-8 border border-emerald-100 shadow-sm space-y-6 relative overflow-hidden group">
+             <div className="flex items-center justify-between relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-emerald-600 shadow-sm">
+                   <Building size={24} />
                 </div>
-                <div className="flex items-start gap-5 group">
-                   <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 border border-white group-hover:bg-blue-100 transition-colors">
-                      <Smartphone size={24} className="text-blue-500" />
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Instant Airtime</p>
-                      <p className="text-[10px] text-slate-400 font-medium leading-relaxed uppercase">
-                        Purchase airtime and data instantly from your balance.
-                      </p>
-                   </div>
+                <div className="text-[9px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-2 px-3 py-1 bg-white/50 rounded-full border border-emerald-200">
+                   Monnify Secured <ShieldCheck size={12} />
                 </div>
              </div>
+             
+             <div className="space-y-4 relative z-10">
+                <p className="text-[10px] font-bold text-emerald-800/60 uppercase tracking-widest">Dedicated Funding Account</p>
+                {monnifyAccount ? (
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                       <p className="text-xl font-bold text-slate-900 tracking-tight">{monnifyAccount.monnifyAccountNumber}</p>
+                       <p className="text-sm font-bold text-emerald-700">{monnifyAccount.monnifyBankName}</p>
+                    </div>
+                    <button 
+                      onClick={() => copyToClipboard(monnifyAccount.monnifyAccountNumber)}
+                      className="flex items-center gap-2 text-[10px] font-bold text-emerald-600 uppercase tracking-widest hover:text-emerald-800 transition-colors"
+                    >
+                       {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />} {copied ? 'Copied to Buffer' : 'Copy Account Number'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="animate-pulse space-y-2">
+                     <div className="h-6 w-3/4 bg-emerald-200/50 rounded-lg"></div>
+                     <div className="h-4 w-1/2 bg-emerald-200/50 rounded-lg"></div>
+                  </div>
+                )}
+             </div>
+             
+             <p className="text-[9px] text-emerald-800/40 leading-relaxed font-medium relative z-10 uppercase py-2 border-t border-emerald-200/50 mt-4">
+               Transfers to this account will automatically reflect in your Eduro Scholar wallet within 5 minutes.
+             </p>
           </div>
         </div>
 
@@ -115,14 +167,14 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
                 onClick={() => setActiveTab('overview')}
                 className={`pb-4 text-[10px] font-bold uppercase tracking-widest transition-all relative ${activeTab === 'overview' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
              >
-                Dashboard
+                Portfolio
                 {activeTab === 'overview' && <motion.div layoutId="wallet-tab" className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-primary rounded-t-full shadow-sm" />}
              </button>
              <button 
                 onClick={() => setActiveTab('history')}
                 className={`pb-4 text-[10px] font-bold uppercase tracking-widest transition-all relative ${activeTab === 'history' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
              >
-                History
+                Revenue Logs
                 {activeTab === 'history' && <motion.div layoutId="wallet-tab" className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-primary rounded-t-full shadow-sm" />}
              </button>
           </div>
@@ -142,10 +194,10 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
                        </div>
                        <div className="space-y-2">
                          <p className="text-3xl font-bold text-slate-900 leading-none tracking-tighter">₦{profile.stats?.monthlyEarnings?.toLocaleString() || 0}</p>
-                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 font-medium">Estimated return this month</p>
+                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 font-medium">Estimated neural yield</p>
                        </div>
                        <div className="pt-6 border-t border-slate-50 flex items-center gap-3 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
-                          <div className="bg-emerald-50 p-1 rounded-md"><ArrowUpRight size={14} /></div> +14.2% Growth
+                          <div className="bg-emerald-50 p-1 rounded-md"><ArrowUpRight size={14} /></div> +14.2% Flux
                        </div>
                     </motion.div>
 
@@ -155,20 +207,23 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
                     >
                        <div className="flex items-center gap-4">
                          <div className="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center">
-                            <Building size={24} />
+                            <Send size={24} />
                          </div>
-                         <h3 className="text-xs font-bold uppercase tracking-widest text-slate-800">Bank Settlement</h3>
+                         <h3 className="text-xs font-bold uppercase tracking-widest text-slate-800">Internal Link</h3>
                        </div>
-                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">Connect your local bank account for fast earnings settlement.</p>
-                       <button className="w-full py-4 bg-slate-900 text-accent rounded-2xl font-bold uppercase tracking-widest text-[10px] transition-colors hover:bg-slate-800">
-                          Account Settings
+                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">Instantly transfer scholarship funds to other scholars using their unique Wallet ID.</p>
+                       <button 
+                         onClick={() => setShowTransferModal(true)}
+                         className="w-full py-4 bg-slate-900 text-accent rounded-2xl font-bold uppercase tracking-widest text-[10px] transition-colors hover:bg-slate-800"
+                       >
+                          Initialize Transfer
                        </button>
                     </motion.div>
 
                    <div className="md:col-span-2 mt-4">
                       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                         <div className="p-8 border-b border-slate-100 bg-slate-50/10 flex items-center justify-between">
-                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-800">Recent Activity</h3>
+                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-800">Network Activity</h3>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                                 <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Live</span>
@@ -186,8 +241,77 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
           </div>
         </div>
       </div>
+
+      {/* Transfer Modal */}
+      <AnimatePresence>
+        {showTransferModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+             <motion.div 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               onClick={() => setShowTransferModal(false)}
+               className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+             />
+             <motion.div 
+               initial={{ scale: 0.9, opacity: 0, y: 20 }}
+               animate={{ scale: 1, opacity: 1, y: 0 }}
+               exit={{ scale: 0.9, opacity: 0, y: 20 }}
+               className="bg-white w-full max-w-md rounded-[40px] p-10 relative z-10 shadow-2xl space-y-8"
+             >
+                <div className="space-y-2">
+                   <h2 className="text-2xl font-bold uppercase tracking-tight text-slate-900">Transfer Signal</h2>
+                   <p className="text-xs text-slate-400 font-medium tracking-tight">Synchronize funds with another scholar node.</p>
+                </div>
+
+                {transferError && (
+                  <div className="p-4 bg-rose-50 text-rose-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-rose-100">
+                    {transferError}
+                  </div>
+                )}
+
+                <div className="space-y-6">
+                   <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Target Wallet ID</label>
+                      <input 
+                        value={transferData.targetId}
+                        onChange={(e) => setTransferData({ ...transferData, targetId: e.target.value })}
+                        placeholder="e.g. joshua1234"
+                        className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-100 focus:border-primary outline-none transition-all font-bold text-slate-900"
+                      />
+                   </div>
+                   <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Amount (₦)</label>
+                      <input 
+                        type="number"
+                        value={transferData.amount}
+                        onChange={(e) => setTransferData({ ...transferData, amount: e.target.value })}
+                        placeholder="0.00"
+                        className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-100 focus:border-primary outline-none transition-all font-bold text-slate-900"
+                      />
+                   </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                   <button 
+                     onClick={() => setShowTransferModal(false)}
+                     className="py-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest text-slate-400 hover:bg-slate-50 transition-colors"
+                   >
+                     Cancel
+                   </button>
+                   <motion.button 
+                     whileTap={{ scale: 0.95 }}
+                     onClick={handleTransfer}
+                     disabled={isTransferring || !transferData.targetId || !transferData.amount}
+                     className="bg-primary text-white py-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+                   >
+                      {isTransferring ? 'Syncing...' : <>Authorize <ArrowRight size={14} /></>}
+                   </motion.button>
+                </div>
+             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
-
-const TrendingUp = ({ size }: { size: number }) => <ArrowDownLeft size={size} />;

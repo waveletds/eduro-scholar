@@ -47,6 +47,25 @@ service cloud.firestore {
         && data.walletBalance >= 0;
     }
 
+    function isValidPost(data) {
+       return data.authorId == request.auth.uid
+         && data.content is string && data.content.size() <= 2000
+         && data.createdAt == request.time;
+    }
+
+    function isValidChatMessage(data) {
+       return data.senderId == request.auth.uid
+         && data.text is string && data.text.size() <= 1000
+         && data.createdAt == request.time;
+    }
+
+    function isValidForumMessage(data) {
+       return data.authorId == request.auth.uid
+         && data.text is string && data.text.size() <= 1000
+         && data.stream in ['Science', 'Art', 'Commercial', 'General']
+         && data.createdAt == request.time;
+    }
+
     function isValidQuestion(data) {
       return data.text is string && data.text.size() <= 5000
         && data.options is list && data.options.size() >= 2 && data.options.size() <= 5
@@ -61,7 +80,7 @@ service cloud.firestore {
     // Users
     match /users/{userId} {
       allow get: if isSignedIn(); // Allow profile view for collaboration
-      allow list: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow list: if isSignedIn(); // Allow searching for other students
       
       allow create: if isOwner(userId) && isEmailVerified() && isValidUser(incoming())
         && incoming().walletBalance == 0; // Fresh account must have 0 balance
@@ -69,13 +88,40 @@ service cloud.firestore {
       allow update: if isSignedIn() && (
         (isOwner(userId) && isValidUser(incoming()) && (
           incoming().walletBalance == existing().walletBalance
-          || (incoming().diff(existing()).affectedKeys().hasOnly(['updatedAt', 'displayName', 'photoURL', 'teacherProfile']))
+          || (incoming().diff(existing()).affectedKeys().hasOnly(['updatedAt', 'displayName', 'photoURL', 'status', 'stream', 'teacherProfile']))
         ))
         ||
-        (incoming().diff(existing()).affectedKeys().hasOnly(['walletBalance', 'stats', 'updatedAt']))
+        (incoming().diff(existing()).affectedKeys().hasOnly(['walletBalance', 'stats', 'followersCount', 'followingCount', 'updatedAt']))
         ||
         isAdmin()
       );
+    }
+
+    // Social Data
+    match /posts/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidPost(incoming());
+      allow update: if isSignedIn() && isOwner(existing().authorId) && isValidPost(incoming())
+        && incoming().diff(existing()).affectedKeys().hasOnly(['content', 'image', 'updatedAt']);
+      allow update: if isSignedIn() && incoming().diff(existing()).affectedKeys().hasOnly(['likesCount']);
+      allow delete: if isSignedIn() && (isOwner(existing().authorId) || isAdmin());
+    }
+
+    match /chats/{chatId} {
+      allow read: if isSignedIn() && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
+      allow create: if isSignedIn() && isValidChatMessage(incoming());
+    }
+
+    match /forums/{messageId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidForumMessage(incoming());
+      allow delete: if isSignedIn() && (isOwner(existing().authorId) || isAdmin());
+    }
+
+    match /follows/{followId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && incoming().followerId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().followerId == request.auth.uid;
     }
 
     // Questions

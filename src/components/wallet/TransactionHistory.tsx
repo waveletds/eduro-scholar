@@ -46,6 +46,7 @@ export const TransactionHistory: React.FC = () => {
       case 'usage_royalty': return <TrendingUp size={18} className="text-emerald-500" />;
       case 'reward': return <ArrowDownCircle size={18} className="text-blue-500" />;
       case 'withdrawal': return <ArrowUpCircle size={18} className="text-rose-500" />;
+      case 'deposit': return <ArrowDownCircle size={18} className="text-emerald-500" />;
       default: return <Wallet size={18} className="text-slate-400" />;
     }
   };
@@ -56,6 +57,7 @@ export const TransactionHistory: React.FC = () => {
         case 'reward': return 'Quiz Reward';
         case 'contribution_payout': return 'Contribution Bonus';
         case 'withdrawal': return 'Withdrawal';
+        case 'deposit': return 'Internal Deposit';
         default: return type.replace('_', ' ');
     }
   };

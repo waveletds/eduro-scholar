@@ -34,6 +34,30 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ profile, onS
       animate="visible"
       className="space-y-12 pb-32"
     >
+      {/* Rewards Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Battle Reward', value: '₦2,500', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50' },
+          { label: 'Weekly Best', value: '₦5,000', icon: Star, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+          { label: 'Monthly Best', value: '₦20,000', icon: Trophy, color: 'text-primary', bg: 'bg-blue-50' },
+          { label: 'Total Rewards', value: '₦' + (profile.walletBalance || 0).toLocaleString(), icon: Clock, color: 'text-slate-900', bg: 'bg-slate-50' }
+        ].map((reward, i) => (
+          <motion.div 
+            key={i}
+            variants={itemVariants}
+            className={`${reward.bg} p-6 rounded-2xl border border-white shadow-sm flex flex-col items-center justify-center text-center space-y-2`}
+          >
+            <div className={`w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center ${reward.color}`}>
+              <reward.icon size={20} />
+            </div>
+            <div>
+              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{reward.label}</p>
+              <p className={`text-xl font-bold tracking-tight ${reward.color}`}>{reward.value}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
       {/* Welcome Stat Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <motion.div 

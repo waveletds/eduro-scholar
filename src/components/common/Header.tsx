@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogOut, User, Wallet, BookOpen, PenTool, LayoutDashboard, ShieldCheck, Zap, Trophy, Smartphone } from 'lucide-react';
+import { LogOut, User, Wallet, BookOpen, PenTool, LayoutDashboard, ShieldCheck, Zap, Trophy, Smartphone, Globe } from 'lucide-react';
 import { auth, logout } from '../../services/firebase';
 
 interface HeaderProps {
@@ -15,6 +15,8 @@ export const Header: React.FC<HeaderProps> = ({ profile, currentView, setView })
   const navItems = [
     { id: 'dashboard', label: 'PORTAL', icon: LayoutDashboard, color: 'bg-primary' },
     ...(profile?.role === 'student' ? [
+      { id: 'community', label: 'COMMONS', icon: Globe, color: 'bg-indigo-600' },
+      { id: 'profile', label: 'SCHOLAR', icon: User, color: 'bg-slate-900' },
       { id: 'contest', label: 'ARENA', icon: Trophy, color: 'bg-amber-500' },
       { id: 'vtu', label: 'FORGE', icon: 'zap', color: 'bg-indigo-600' }
     ] : []),

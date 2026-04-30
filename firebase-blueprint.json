@@ -10,6 +10,13 @@
         "displayName": { "type": "string" },
         "photoURL": { "type": "string" },
         "role": { "type": "string", "enum": ["student", "teacher", "admin"] },
+        "walletId": { "type": "string", "description": "Short unique identifier for transfers" },
+        "monnifyAccountNumber": { "type": "string" },
+        "monnifyBankName": { "type": "string" },
+        "status": { "type": "string", "description": "WhatsApp-like status message" },
+        "stream": { "type": "string", "enum": ["Science", "Art", "Commercial"], "description": "Student academic stream" },
+        "followersCount": { "type": "number", "default": 0 },
+        "followingCount": { "type": "number", "default": 0 },
         "isVerifiedTeacher": { "type": "boolean" },
         "walletBalance": { "type": "number", "description": "Current balance in Naira (NGN)" },
         "teacherProfile": {
@@ -87,6 +94,57 @@
         "timestamp": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "amount", "type", "timestamp"]
+    },
+    "Post": {
+      "title": "Timeline Post",
+      "description": "A post shared by a student to their followers/timeline.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorPhoto": { "type": "string" },
+        "content": { "type": "string" },
+        "image": { "type": "string" },
+        "likesCount": { "type": "number", "default": 0 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "content", "createdAt"]
+    },
+    "ChatMessage": {
+      "title": "Direct Message",
+      "description": "Private message between two students.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["senderId", "receiverId", "text", "createdAt"]
+    },
+    "ForumMessage": {
+      "title": "Forum Message",
+      "description": "Message posted in a stream-specific forum.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "stream": { "type": "string", "enum": ["Science", "Art", "Commercial", "General"] },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "stream", "text", "createdAt"]
+    },
+    "Follow": {
+      "title": "Follow Relationship",
+      "description": "Tracks which student follows another.",
+      "type": "object",
+      "properties": {
+        "followerId": { "type": "string" },
+        "followingId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["followerId", "followingId", "createdAt"]
     }
   },
   "firestore": {
@@ -105,6 +163,22 @@
     "/transactions/{transactionId}": {
       "schema": "Transaction",
       "description": "Financial ledger for rewards and earnings."
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Timeline posts."
+    },
+    "/chats/{chatId}": {
+      "schema": "ChatMessage",
+      "description": "Direct messages."
+    },
+    "/forums/{messageId}": {
+      "schema": "ForumMessage",
+      "description": "Public forum messages grouped by stream."
+    },
+    "/follows/{followId}": {
+      "schema": "Follow",
+      "description": "Follower relationships."
     }
   }
 }

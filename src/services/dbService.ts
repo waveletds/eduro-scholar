@@ -201,5 +201,152 @@ export const dbService = {
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
     }
+  },
+
+  // Wallet APIs
+  async getVirtualAccount(userId: string, displayName: string, email: string) {
+    try {
+      const response = await fetch('/api/wallet/virtual-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, displayName, email })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to fetch virtual account:', error);
+      return null;
+    }
+  },
+
+  async transferWallet(fromUserId: string, targetWalletId: string, amount: number) {
+    try {
+      const response = await fetch('/api/wallet/transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fromUserId, targetWalletId, amount })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Transfer failed');
+      return data;
+    } catch (error: any) {
+      console.error('Transfer error:', error);
+      throw error;
+    }
+  },
+
+  // Social Features
+  async updateUserSocial(userId: string, data: { status?: string; stream?: string; photoURL?: string; displayName?: string }) {
+    const path = `users/${userId}`;
+    try {
+      await updateDoc(doc(db, 'users', userId), {
+        ...data,
+        updatedAt: serverTimestamp()
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, path);
+    }
+  },
+
+  async createPost(data: any) {
+    const path = 'posts';
+    try {
+      return await addDoc(collection(db, 'posts'), {
+        ...data,
+        likesCount: 0,
+        createdAt: serverTimestamp()
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  },
+
+  async getPosts() {
+    const path = 'posts';
+    try {
+      const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(50));
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.LIST, path);
+    }
+  },
+
+  async sendChatMessage(data: any) {
+    const path = 'chats';
+    try {
+      return await addDoc(collection(db, 'chats'), {
+        ...data,
+        createdAt: serverTimestamp()
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  },
+
+  async sendForumMessage(data: any) {
+    const path = 'forums';
+    try {
+      return await addDoc(collection(db, 'forums'), {
+        ...data,
+        createdAt: serverTimestamp()
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
+  },
+
+  async getForumMessages(stream: string) {
+    const path = 'forums';
+    try {
+      const q = query(
+        collection(db, 'forums'), 
+        where('stream', 'in', [stream, 'General']),
+        orderBy('createdAt', 'asc'), 
+        limit(100)
+      );
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.LIST, path);
+    }
+  },
+
+  async searchScholars(searchTerm: string) {
+    const path = 'users';
+    try {
+      // Basic search (in a real app we'd use Algolia or a better index)
+      const q = query(
+        collection(db, 'users'),
+        where('role', '==', 'student'),
+        limit(20)
+      );
+      const querySnapshot = await getDocs(q);
+      const users = querySnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
+      return users.filter(u => u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.LIST, path);
+    }
+  },
+
+  async followUser(followerId: string, followingId: string) {
+    const path = 'follows';
+    try {
+      // 1. Create follow doc
+      await addDoc(collection(db, 'follows'), {
+        followerId,
+        followingId,
+        createdAt: serverTimestamp()
+      });
+
+      // 2. Increment counts
+      await updateDoc(doc(db, 'users', followerId), {
+        followingCount: increment(1)
+      });
+      await updateDoc(doc(db, 'users', followingId), {
+        followersCount: increment(1)
+      });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, path);
+    }
   }
 };
