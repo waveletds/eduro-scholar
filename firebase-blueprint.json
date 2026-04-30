@@ -1,0 +1,110 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Represents a student or teacher profile on the platform.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["student", "teacher", "admin"] },
+        "isVerifiedTeacher": { "type": "boolean" },
+        "walletBalance": { "type": "number", "description": "Current balance in Naira (NGN)" },
+        "teacherProfile": {
+          "type": "object",
+          "properties": {
+            "qualifications": { "type": "string" },
+            "subjects": { "type": "array", "items": { "type": "string" } },
+            "experience": { "type": "number" },
+            "approvalStatus": { "type": "string", "enum": ["pending", "approved", "rejected"] }
+          }
+        },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "totalQuizzes": { "type": "number" },
+            "averageScore": { "type": "number" },
+            "questionsContributed": { "type": "number" },
+            "approvalRate": { "type": "number" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "walletBalance"]
+    },
+    "Question": {
+      "title": "Exam Question",
+      "description": "A student-facing MCQ question contributed by teachers or official sources.",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "image": { "type": "string", "description": "Optional URL for question illustration" },
+        "options": { "type": "array", "items": { "type": "string" } },
+        "correctOption": { "type": "number", "description": "Index of the correct option (0-4)" },
+        "explanation": { "type": "string" },
+        "subject": { "type": "string" },
+        "topic": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"] },
+        "examType": { "type": "string", "enum": ["JAMB", "WAEC", "NECO", "NABTEB", "Post-UTME", "General"] },
+        "creatorId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "rejectionReason": { "type": "string" },
+        "usageCount": { "type": "number" },
+        "ratingSum": { "type": "number" },
+        "ratingCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["text", "options", "correctOption", "subject", "creatorId", "status"]
+    },
+    "Attempt": {
+      "title": "Quiz Attempt",
+      "description": "A record of a student completing a practice session.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subject": { "type": "string" },
+        "score": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "duration": { "type": "number", "description": "Seconds taken" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "score", "timestamp"]
+    },
+    "Transaction": {
+      "title": "Wallet Transaction",
+      "description": "Log of earnings, rewards, or payouts.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["reward", "contribution_payout", "usage_royalty", "withdrawal"] },
+        "status": { "type": "string", "enum": ["completed", "pending", "failed"] },
+        "description": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "amount", "type", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and wallet data."
+    },
+    "/questions/{questionId}": {
+      "schema": "Question",
+      "description": "Global repository of exam questions."
+    },
+    "/attempts/{attemptId}": {
+      "schema": "Attempt",
+      "description": "Practice history."
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Financial ledger for rewards and earnings."
+    }
+  }
+}

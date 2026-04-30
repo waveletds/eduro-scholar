@@ -1,0 +1,249 @@
+import React from 'react';
+import { motion } from 'motion/react';
+import { BookOpen, Trophy, PenTool, ArrowRight, Star, CheckCircle2 } from 'lucide-react';
+import { loginWithGoogle } from '../../services/firebase';
+
+export const LandingPage: React.FC = () => {
+  return (
+    <div className="min-h-screen bg-white selection:bg-accent selection:text-primary">
+      {/* Hero Section */}
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl glass rounded-3xl px-8 py-4 shadow-xl border border-white/40 flex items-center justify-between">
+        <div className="flex items-center gap-3 cursor-pointer group">
+            <div className="bg-primary text-accent p-2 rounded-xl group-hover:scale-105 transition-transform">
+                <BookOpen size={24} />
+            </div>
+            <h1 className="text-xl font-bold text-primary uppercase tracking-tight">
+                Eduro Scholar
+            </h1>
+        </div>
+        <button 
+          onClick={() => loginWithGoogle()}
+          className="bg-slate-900 text-accent px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all hover:bg-slate-800"
+        >
+          Access Portal
+        </button>
+      </nav>
+
+      <main className="pt-32">
+        <section className="max-w-7xl mx-auto px-4 pt-16 pb-32 grid lg:grid-cols-2 gap-20 items-center">
+          <motion.div 
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ type: "spring", damping: 20 }}
+            className="space-y-10"
+          >
+            <div className="inline-flex items-center gap-3 px-4 py-2 bg-amber-50 text-amber-700 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-amber-100 shadow-sm">
+               <Star size={14} fill="currentColor" /> Nigeria's #1 CBT Platform
+            </div>
+            <h2 className="text-7xl md:text-8xl font-bold leading-[0.95] tracking-tighter text-slate-900">
+               Master <br />
+               <span className="text-primary">Your Exams.</span>
+            </h2>
+            <p className="text-xl text-slate-500 font-medium max-w-lg leading-relaxed">
+               Nigeria's smartest exam preparation platform. Prepare for JAMB, WAEC & Post-UTME with gamified learning.
+            </p>
+            <div className="flex flex-wrap gap-4 pt-4">
+              <motion.button 
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => loginWithGoogle()}
+                className="bg-primary text-white px-10 py-5 rounded-2xl font-bold text-lg uppercase tracking-wider shadow-lg flex items-center gap-3"
+              >
+                Get Started <ArrowRight size={24} />
+              </motion.button>
+              <motion.button 
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => loginWithGoogle()}
+                className="bg-white text-primary border border-slate-200 px-10 py-5 rounded-2xl font-bold text-lg uppercase tracking-wider shadow-sm hover:border-primary transition-all"
+              >
+                Join Faculty
+              </motion.button>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0, rotateY: 30 }}
+            animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="relative perspective-1000"
+          >
+            {/* Abstract UI representation */}
+            <motion.div 
+              animate={{ y: [0, -20, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="relative z-10 bg-white p-6 rounded-[60px] shadow-3d border-4 border-slate-100 rotate-3 preserve-3d"
+            >
+                <div className="bg-slate-900 rounded-[40px] p-10 space-y-8 neo-3d-accent">
+                    <div className="flex items-center justify-between">
+                        <div className="flex gap-3">
+                            <div className="w-4 h-4 rounded-full bg-rose-500 neo-3d"></div>
+                            <div className="w-4 h-4 rounded-full bg-amber-500 neo-3d"></div>
+                            <div className="w-4 h-4 rounded-full bg-emerald-500 neo-3d"></div>
+                        </div>
+                        <div className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black text-accent uppercase tracking-widest border border-white/10">BATTLE_MODE: ACTIVE</div>
+                    </div>
+                    <div className="space-y-6">
+                        <div className="h-10 w-3/4 bg-white/10 rounded-2xl neo-3d"></div>
+                        <div className="h-6 w-1/2 bg-white/5 rounded-2xl"></div>
+                        <div className="grid gap-4 pt-6">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className={`h-16 rounded-3xl border-2 ${i === 2 ? 'border-accent bg-accent/10' : 'border-white/5 bg-white/5'}`}></div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+            {/* Background blobs */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] bg-accent/20 rounded-full blur-[150px] -z-10 animate-pulse"></div>
+          </motion.div>
+        </section>
+
+        {/* Feature Grid */}
+        <section className="bg-slate-900 py-32 overflow-hidden relative">
+            <div className="max-w-7xl mx-auto px-4 space-y-24 relative z-10">
+                <div className="text-center space-y-6">
+                    <div className="inline-block px-4 py-2 bg-white/10 rounded-2xl text-[10px] font-black text-accent uppercase tracking-[0.3em] mb-4">Core Systems</div>
+                    <h2 className="text-5xl md:text-6xl font-black font-display uppercase tracking-tighter text-white italic">SYTEMS FOR <span className="text-accent not-italic">EXCELLENCE</span></h2>
+                    <p className="text-slate-400 max-w-2xl mx-auto font-bold uppercase tracking-widest text-xs leading-relaxed">Eduro Scholar combines localized exam content with high-frequency gamified learning architecture.</p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-10">
+                    {[
+                        { 
+                            title: 'BATTLE ARCHIVE', 
+                            desc: 'Full access to JAMB, WAEC, NECO and Post-UTME neural networks with 15+ years of past data.',
+                            icon: BookOpen,
+                            color: 'text-blue-400',
+                            bg: 'bg-blue-500/10'
+                        },
+                        { 
+                            title: 'YIELD FARMING', 
+                            desc: 'High-performance leaderboard system. Earn academic yield convertible to real-world carrier data.',
+                            icon: Trophy,
+                            color: 'text-amber-400',
+                            bg: 'bg-amber-500/10'
+                        },
+                        { 
+                            title: 'NEURAL GUIDES', 
+                            desc: 'Quantum explanations from verified masters. Don\'t just find the solution, verify the methodology.',
+                            icon: PenTool,
+                            color: 'text-emerald-400',
+                            bg: 'bg-emerald-500/10'
+                        }
+                    ].map((feature, idx) => (
+                        <motion.div 
+                          key={idx} 
+                          whileHover={{ y: -20, rotateZ: 1 }}
+                          className="bg-white/5 backdrop-blur-xl p-10 rounded-[48px] border-2 border-white/10 shadow-2xl space-y-6 group"
+                        >
+                            <div className={`w-16 h-16 ${feature.bg} ${feature.color} rounded-3xl flex items-center justify-center neo-3d group-hover:rotate-12 transition-transform`}>
+                                <feature.icon size={32} />
+                            </div>
+                            <h3 className="text-2xl font-black text-white uppercase tracking-tight italic">{feature.title}</h3>
+                            <p className="text-xs text-slate-400 leading-relaxed font-bold uppercase tracking-widest">{feature.desc}</p>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+            {/* Decors */}
+            <div className="absolute -top-64 -left-64 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[150px]"></div>
+            <div className="absolute -bottom-64 -right-64 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[150px]"></div>
+        </section>
+
+        {/* Teacher Section */}
+        <section className="max-w-7xl mx-auto px-4 py-40 flex flex-col lg:flex-row items-center gap-24">
+            <div className="flex-1 space-y-8">
+                <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border-2 border-emerald-100 neo-3d">
+                   <PenTool size={14} fill="currentColor" /> Faculty Intel
+                </div>
+                <h2 className="text-6xl md:text-7xl font-black font-display uppercase tracking-tighter leading-[0.85] italic">
+                    QUANTUM <br />
+                    <span className="text-emerald-600 not-italic">TEACHING.</span>
+                </h2>
+                <p className="text-xl text-slate-500 font-bold uppercase tracking-tight leading-relaxed max-w-xl">
+                    Join our verified contributor network. 
+                    Upload content, verify methodology, and receive weekly royalties directly to your node.
+                </p>
+                <div className="grid gap-4">
+                    {[
+                        'Consistent yield for high-quality data',
+                        'Node reputation scoring system',
+                        'Real-time reach analytics',
+                        'Friday clearing to commercial banks'
+                    ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-4 text-slate-800 font-black text-xs uppercase tracking-widest">
+                            <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center neo-3d">
+                                <CheckCircle2 size={14} className="text-emerald-600" />
+                            </div>
+                            {item}
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <div className="flex-1 bg-slate-900 p-2 rounded-[60px] neo-3d-accent">
+                <div className="bg-white border-4 border-slate-100 rounded-[56px] p-16 space-y-10">
+                    <div className="space-y-3">
+                        <p className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic">ENROLL NOW</p>
+                        <p className="text-slate-300 font-black uppercase text-[10px] tracking-[0.3em]">Initialize Faculty Sync</p>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="h-16 bg-slate-50 rounded-[28px] border-2 border-slate-100 flex items-center px-6 font-black text-[10px] uppercase tracking-widest text-slate-400 neo-3d">Awaiting Credentials...</div>
+                        <div className="h-16 bg-slate-50 rounded-[28px] border-2 border-slate-100 flex items-center px-6 font-black text-[10px] uppercase tracking-widest text-slate-400 neo-3d">Select Disciplines...</div>
+                        <button 
+                          onClick={() => loginWithGoogle()}
+                          className="w-full bg-slate-900 text-accent py-6 rounded-[28px] font-black uppercase tracking-[0.3em] text-sm neo-3d-accent transition-all hover:scale-[1.02]"
+                        >
+                            Become a Master
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+      </main>
+
+      <footer className="bg-slate-900 text-slate-500 py-32 border-t border-white/5">
+          <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-16">
+              <div className="col-span-2 space-y-8">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white/10 text-accent p-2 rounded-2xl neo-3d border border-white/10">
+                        <BookOpen size={24} />
+                    </div>
+                    <h1 className="text-xl font-black font-display text-white uppercase tracking-tighter italic">
+                        Eduro Scholar
+                    </h1>
+                  </div>
+                  <p className="text-xs font-bold uppercase tracking-widest leading-relaxed max-w-sm">
+                    Empowering the Next Generation of Nigerian Thinkers through academic combat and sustainable faculty income.
+                  </p>
+              </div>
+              <div className="space-y-6">
+                  <h4 className="text-white font-black uppercase tracking-[0.3em] text-[10px]">Registry</h4>
+                  <ul className="text-[10px] font-black uppercase tracking-widest space-y-4">
+                      <li className="hover:text-accent cursor-pointer transition-colors">JAMB_NET</li>
+                      <li className="hover:text-accent cursor-pointer transition-colors">WAEC_PORTAL</li>
+                      <li className="hover:text-accent cursor-pointer transition-colors">NECO_CORE</li>
+                      <li className="hover:text-accent cursor-pointer transition-colors">UTME_BATTLE</li>
+                  </ul>
+              </div>
+              <div className="space-y-6">
+                  <h4 className="text-white font-black uppercase tracking-[0.3em] text-[10px]">Infrastructure</h4>
+                  <ul className="text-[10px] font-black uppercase tracking-widest space-y-4">
+                      <li className="hover:text-accent cursor-pointer transition-colors">Join_Faculty</li>
+                      <li className="hover:text-accent cursor-pointer transition-colors">Yield_Fund</li>
+                      <li className="hover:text-accent cursor-pointer transition-colors">Node_Support</li>
+                      <li className="hover:text-accent cursor-pointer transition-colors">Privacy_Key</li>
+                  </ul>
+              </div>
+          </div>
+          <div className="max-w-7xl mx-auto px-4 mt-32 pt-12 border-t border-white/5 text-[10px] font-black uppercase tracking-[0.4em] flex flex-col md:flex-row justify-between items-center gap-8 text-center text-white/20">
+              <p>© 2024 EDURO_SCHOLAR_SYS. DEPLOYED_IN_LAGOS.</p>
+              <div className="flex gap-12">
+                  <span className="hover:text-accent cursor-pointer transition-colors">X</span>
+                  <span className="hover:text-accent cursor-pointer transition-colors">GH</span>
+                  <span className="hover:text-accent cursor-pointer transition-colors">IN</span>
+              </div>
+          </div>
+      </footer>
+    </div>
+  );
+};
