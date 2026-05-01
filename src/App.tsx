@@ -22,11 +22,44 @@ export default function App() {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [showContribute, setShowContribute] = useState(false);
   const [lastQuizScore, setLastQuizScore] = useState<number | null>(null);
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
 
-  if (loading) {
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      if (loading) setLoadingTimedOut(true);
+    }, 10000);
+    return () => clearTimeout(timer);
+  }, [loading]);
+
+  if (loading && !loadingTimedOut) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse font-mono">SYNCING SCHOLAR DATA...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadingTimedOut && loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center p-6 text-center">
+        <div className="max-w-md space-y-6">
+          <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto border border-rose-100">
+            <ShieldCheck size={40} />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold uppercase tracking-tight">Sync Timeout</h2>
+            <p className="text-sm text-slate-400 font-medium leading-relaxed">We're having trouble connecting to the scholar network. This might be due to a slow connection or database sync delay.</p>
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg"
+          >
+            Retry Initialization
+          </button>
+        </div>
       </div>
     );
   }

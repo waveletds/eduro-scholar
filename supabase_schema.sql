@@ -169,6 +169,9 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Users can update own profile.') THEN
         create policy "Users can update own profile." on public.profiles for update using (auth.uid() = id);
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Users can insert own profile.') THEN
+        create policy "Users can insert own profile." on public.profiles for insert with check (auth.uid() = id);
+    END IF;
 
     -- Questions
     alter table public.questions enable row level security;

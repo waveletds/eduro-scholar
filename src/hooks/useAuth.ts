@@ -9,87 +9,88 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     // Initial session check
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
+        if (mounted && session) {
           await handleAuthChange(session.user);
-        } else {
+        } else if (mounted) {
           setLoading(false);
         }
       } catch (error) {
         console.error("Session check error:", error);
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+      if (!mounted) return;
+      
+      console.log("Auth event:", event);
+      
+      if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
         await handleAuthChange(session?.user || null);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setProfile(null);
+        setLoading(false);
       }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
   const handleAuthChange = async (supabaseUser: any) => {
-    setLoading(true);
+    console.log("handleAuthChange triggered for user:", supabaseUser?.id);
+    if (!supabaseUser) {
+      setUser(null);
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
+
+    if (!user) setLoading(true);
+    
     try {
-      if (supabaseUser) {
-        setUser(supabaseUser);
-        const data = await dbService.getUserProfile(supabaseUser.id);
-        
-        if (!data) {
-          // New user registration
-          const newProfile = {
-            uid: supabaseUser.id,
-            email: supabaseUser.email,
-            displayName: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0],
-            photoURL: supabaseUser.user_metadata?.avatar_url,
-            role: 'student',
-            walletBalance: 0,
-            isVerifiedTeacher: false,
-            stats: {
-              totalQuizzes: 0,
-              averageScore: 0,
-              questionsContributed: 0
-            }
-          };
-          await dbService.createUserProfile(supabaseUser.id, newProfile);
-          setProfile(newProfile);
-        } else {
-          // Map snake_case to camelCase
-          const mappedProfile = {
-            uid: data.id,
-            email: data.email,
-            displayName: data.display_name,
-            photoURL: data.photo_url,
-            role: data.role,
-            walletBalance: data.wallet_balance,
-            isVerifiedTeacher: data.is_verified_teacher,
-            stats: data.stats,
-            stream: data.stream,
-            status: data.status,
-            walletId: data.wallet_id,
-            monnifyAccountNumber: data.monnify_account_number,
-            monnifyBankName: data.monnify_bank_name,
-            followingCount: data.following_count,
-            followersCount: data.followers_count
-          };
-          setProfile(mappedProfile);
-        }
-      } else {
-        setUser(null);
+      setUser(supabaseUser);
+      console.log("Fetching profile for:", supabaseUser.id);
+      const data = await dbService.getUserProfile(supabaseUser.id);
+      console.log("Profile data received:", data ? "Success" : "Not Found");
+      
+      if (!data) {
         setProfile(null);
+      } else {
+        const mappedProfile = {
+          uid: data.id,
+          email: data.email,
+          displayName: data.display_name,
+          photoURL: data.photo_url,
+          role: data.role || 'student',
+          walletBalance: data.wallet_balance || 0,
+          isVerifiedTeacher: data.is_verified_teacher || false,
+          stats: data.stats || {},
+          stream: data.stream,
+          status: data.status,
+          walletId: data.wallet_id,
+          monnifyAccountNumber: data.monnify_account_number,
+          monnifyBankName: data.monnify_bank_name,
+          followingCount: data.following_count || 0,
+          followersCount: data.followers_count || 0
+        };
+        setProfile(mappedProfile);
       }
     } catch (error) {
-      console.error("Auth change error:", error);
+      console.error("Auth change error details:", error);
     } finally {
+      console.log("Loading finished");
       setLoading(false);
     }
   };
