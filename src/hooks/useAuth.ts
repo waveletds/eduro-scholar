@@ -9,53 +9,89 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initial check
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      await handleAuthChange(session?.user || null);
+    // Initial session check
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await handleAuthChange(session.user);
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Session check error:", error);
+        setLoading(false);
+      }
     };
 
-    checkUser();
+    checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      await handleAuthChange(session?.user || null);
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+        await handleAuthChange(session?.user || null);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleAuthChange = async (supabaseUser: any) => {
     setLoading(true);
-    if (supabaseUser) {
-      setUser(supabaseUser);
-      const userProfile = await dbService.getUserProfile(supabaseUser.id);
-      
-      if (!userProfile) {
-        // New user registration
-        const newProfile = {
-          uid: supabaseUser.id,
-          email: supabaseUser.email,
-          displayName: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0],
-          photoURL: supabaseUser.user_metadata?.avatar_url,
-          role: 'student',
-          walletBalance: 0,
-          isVerifiedTeacher: false,
-          stats: {
-            totalQuizzes: 0,
-            averageScore: 0,
-            questionsContributed: 0
-          }
-        };
-        await dbService.createUserProfile(supabaseUser.id, newProfile);
-        setProfile(newProfile);
+    try {
+      if (supabaseUser) {
+        setUser(supabaseUser);
+        const data = await dbService.getUserProfile(supabaseUser.id);
+        
+        if (!data) {
+          // New user registration
+          const newProfile = {
+            uid: supabaseUser.id,
+            email: supabaseUser.email,
+            displayName: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0],
+            photoURL: supabaseUser.user_metadata?.avatar_url,
+            role: 'student',
+            walletBalance: 0,
+            isVerifiedTeacher: false,
+            stats: {
+              totalQuizzes: 0,
+              averageScore: 0,
+              questionsContributed: 0
+            }
+          };
+          await dbService.createUserProfile(supabaseUser.id, newProfile);
+          setProfile(newProfile);
+        } else {
+          // Map snake_case to camelCase
+          const mappedProfile = {
+            uid: data.id,
+            email: data.email,
+            displayName: data.display_name,
+            photoURL: data.photo_url,
+            role: data.role,
+            walletBalance: data.wallet_balance,
+            isVerifiedTeacher: data.is_verified_teacher,
+            stats: data.stats,
+            stream: data.stream,
+            status: data.status,
+            walletId: data.wallet_id,
+            monnifyAccountNumber: data.monnify_account_number,
+            monnifyBankName: data.monnify_bank_name,
+            followingCount: data.following_count,
+            followersCount: data.followers_count
+          };
+          setProfile(mappedProfile);
+        }
       } else {
-        setProfile(userProfile);
+        setUser(null);
+        setProfile(null);
       }
-    } else {
-      setUser(null);
-      setProfile(null);
+    } catch (error) {
+      console.error("Auth change error:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return { user, profile, loading };

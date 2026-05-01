@@ -16,10 +16,34 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
 
+  // Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
   useEffect(() => {
     if (activeTab === 'timeline') loadPosts();
     if (activeTab === 'forums') loadForumMessages();
   }, [activeTab, activeForum]);
+
+  // Debounced Search
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (searchQuery.trim().length > 1) {
+        setIsSearching(true);
+        try {
+          const results = await dbService.searchScholars(searchQuery);
+          setSearchResults(results || []);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const loadPosts = async () => {
     const allPosts = await dbService.getPosts();
@@ -214,11 +238,69 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
             </h3>
             <div className="relative">
               <input 
-                placeholder="Find Scholars..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Name or Stream..."
                 className="w-full h-12 pl-12 pr-6 rounded-2xl bg-slate-50 border border-slate-100 focus:border-primary outline-none transition-all text-sm font-medium"
               />
               <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
             </div>
+
+            {/* Search Results */}
+            <AnimatePresence>
+              {(searchResults.length > 0 || isSearching) && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-4 overflow-hidden"
+                >
+                  <div className="h-px bg-slate-50" />
+                  {isSearching ? (
+                    <div className="py-4 text-center">
+                      <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {searchResults.map((scholar) => (
+                        <div key={scholar.id} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer group">
+                          <div className="w-10 h-10 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0">
+                            <img src={scholar.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${scholar.id}`} alt="profile" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-bold text-slate-900 truncate">{scholar.display_name}</p>
+                            <div className="flex items-center gap-1.5">
+                              <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[8px] font-bold uppercase tracking-wider">
+                                {scholar.stream || 'General'}
+                              </span>
+                              <p className="text-[10px] text-slate-400 font-medium truncate">{scholar.status || 'Active Scholar'}</p>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                await dbService.followUser(profile.uid, scholar.id);
+                                console.log(`Now following ${scholar.display_name}`);
+                              } catch (err) {
+                                console.error(err);
+                              }
+                            }}
+                            className="w-8 h-8 rounded-lg bg-slate-50 text-slate-300 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all"
+                          >
+                            <UserPlus size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {searchQuery.trim().length > 1 && !isSearching && searchResults.length === 0 && (
+              <p className="text-[10px] text-slate-400 text-center font-medium italic">No scholars found matching your criteria.</p>
+            )}
           </div>
 
           {/* Social Stats */}

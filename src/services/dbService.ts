@@ -317,7 +317,7 @@ export const dbService = {
       .from('profiles')
       .select('*')
       .eq('role', 'student')
-      .ilike('display_name', `%${searchTerm}%`)
+      .or(`display_name.ilike.%${searchTerm}%,stream.ilike.%${searchTerm}%`)
       .limit(20);
     
     if (error) throw error;
