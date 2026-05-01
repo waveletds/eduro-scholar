@@ -76,16 +76,16 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
   };
 
   return (
-    <div className="space-y-12 pb-32">
+    <div className="space-y-8 md:space-y-12 pb-32">
       {/* Header section with tab switcher */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-        <div className="space-y-1">
-          <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-bold uppercase tracking-widest mb-2 shadow-sm">Collective Awareness</div>
-          <h1 className="text-4xl font-bold tracking-tight">Student <span className="text-primary italic">Commons</span></h1>
-          <p className="text-slate-400 font-medium tracking-tight text-sm">Synchronize with fellow scholars and share neural data blocks.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
+        <div className="space-y-1 text-center md:text-left">
+          <div className="inline-block px-3 md:px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] md:text-[10px] font-bold uppercase tracking-widest mb-1 md:mb-2 shadow-sm">Collective Awareness</div>
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Student <span className="text-primary italic">Commons</span></h1>
+          <p className="text-slate-400 font-medium tracking-tight text-xs md:text-sm">Synchronize with fellow scholars and share neural data blocks.</p>
         </div>
 
-        <div className="bg-slate-50 p-1.5 rounded-[20px] flex gap-2 border border-slate-100">
+        <div className="bg-slate-50 p-1 md:p-1.5 rounded-2xl md:rounded-[20px] flex flex-wrap justify-center gap-1 md:gap-2 border border-slate-100">
           {[
             { id: 'timeline', label: 'Timeline', icon: Globe },
             { id: 'forums', label: 'Hubs', icon: Hash },
@@ -94,19 +94,19 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all ${
+              className={`flex items-center gap-2 px-3 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-bold uppercase tracking-widest transition-all ${
                 activeTab === tab.id ? 'bg-white text-primary shadow-md border border-slate-100' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
-              <tab.icon size={14} /> {tab.label}
+              <tab.icon size={14} className="md:w-3.5 md:h-3.5" /> {tab.label}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
         {/* Main Content Area */}
-        <div className="md:col-span-2 space-y-8 min-h-[600px]">
+        <div className="md:col-span-2 space-y-6 md:space-y-8 min-h-[400px] md:min-h-[600px]">
           {activeTab === 'timeline' && (
             <div className="space-y-6">
               {posts.map((post) => (
@@ -114,7 +114,7 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
                   key={post.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm space-y-6"
+                  className="bg-white p-6 md:p-8 rounded-2xl md:rounded-[32px] border border-slate-100 shadow-sm space-y-4 md:space-y-6"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -153,28 +153,28 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
           {activeTab === 'forums' && (
             <div className="space-y-8">
               {/* Forum Selector */}
-              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                {['General', 'Science', 'Art', 'Commercial'].map(f => (
-                  <button
-                    key={f}
-                    onClick={() => setActiveForum(f)}
-                    className={`shrink-0 px-8 h-12 rounded-2xl text-xs font-bold uppercase tracking-widest border transition-all ${
-                      activeForum === f ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-100'
-                    }`}
-                  >
-                    {f} HUB
-                  </button>
-                ))}
-              </div>
+              <div className="flex gap-2 md:gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                 {['General', 'Science', 'Art', 'Commercial'].map(f => (
+                   <button
+                     key={f}
+                     onClick={() => setActiveForum(f)}
+                     className={`shrink-0 px-6 md:px-8 h-10 md:h-12 rounded-xl md:rounded-2xl text-[10px] md:text-xs font-bold uppercase tracking-widest border transition-all ${
+                       activeForum === f ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-100'
+                     }`}
+                   >
+                     {f} HUB
+                   </button>
+                 ))}
+               </div>
 
               {/* Messages View */}
-              <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[600px]">
-                <div className="p-6 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
-                  <h3 className="font-bold text-xs uppercase tracking-widest text-primary flex items-center gap-2">
-                    <Hash size={16} /> {activeForum} Forum
-                  </h3>
-                  <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Global Broadcast active</div>
-                </div>
+              <div className="bg-white rounded-3xl md:rounded-[40px] border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[450px] md:h-[600px]">
+                 <div className="p-4 md:p-6 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
+                   <h3 className="font-bold text-[10px] md:text-xs uppercase tracking-widest text-primary flex items-center gap-2">
+                     <Hash size={14} className="md:w-4 md:h-4" /> {activeForum} Forum
+                   </h3>
+                   <div className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest">Broadcast active</div>
+                 </div>
 
                  <div className="flex-1 overflow-y-auto p-8 space-y-6">
                     {forumMessages.map((msg, idx) => (
@@ -232,9 +232,9 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
         {/* Sidebar */}
         <div className="space-y-10">
           {/* Student Search */}
-          <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm space-y-6">
-            <h3 className="font-bold text-xs uppercase tracking-widest text-slate-900 flex items-center gap-2">
-              <Search size={16} className="text-primary" /> Global Search
+          <div className="bg-white p-6 md:p-8 rounded-3xl md:rounded-[40px] border border-slate-100 shadow-sm space-y-4 md:space-y-6">
+            <h3 className="font-bold text-[10px] md:text-xs uppercase tracking-widest text-slate-900 flex items-center gap-2">
+              <Search size={14} className="text-primary md:w-4 md:h-4" /> Global Search
             </h3>
             <div className="relative">
               <input 

@@ -35,7 +35,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ profile, onS
       className="space-y-12 pb-32"
     >
       {/* Rewards Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {[
           { label: 'Battle Reward', value: '₦2,500', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50' },
           { label: 'Weekly Best', value: '₦5,000', icon: Star, color: 'text-emerald-500', bg: 'bg-emerald-50' },
@@ -45,104 +45,104 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ profile, onS
           <motion.div 
             key={i}
             variants={itemVariants}
-            className={`${reward.bg} p-6 rounded-2xl border border-white shadow-sm flex flex-col items-center justify-center text-center space-y-2`}
+            className={`${reward.bg} p-4 md:p-6 rounded-2xl border border-white shadow-sm flex flex-col items-center justify-center text-center space-y-2`}
           >
-            <div className={`w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center ${reward.color}`}>
-              <reward.icon size={20} />
+            <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white shadow-sm flex items-center justify-center ${reward.color}`}>
+              <reward.icon size={16} className="md:w-5 md:h-5" />
             </div>
             <div>
-              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{reward.label}</p>
-              <p className={`text-xl font-bold tracking-tight ${reward.color}`}>{reward.value}</p>
+              <p className="text-[7px] md:text-[8px] font-bold text-slate-400 uppercase tracking-widest">{reward.label}</p>
+              <p className={`text-base md:text-xl font-bold tracking-tight ${reward.color}`}>{reward.value}</p>
             </div>
           </motion.div>
         ))}
       </div>
 
       {/* Welcome Stat Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8">
         <motion.div 
           variants={itemVariants} 
           whileHover={{ y: -4 }}
-          className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-6 transition-all group"
+          className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 md:gap-6 transition-all group"
         >
-          <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl border border-white group-hover:bg-blue-100 transition-colors">
-            <BookOpen size={28} />
+          <div className="p-3 md:p-4 bg-blue-50 text-blue-600 rounded-2xl border border-white group-hover:bg-blue-100 transition-colors">
+            <BookOpen size={24} className="md:w-7 md:h-7" />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-1">Modules Cleared</p>
-            <p className="text-3xl font-bold text-slate-900 leading-none tracking-tighter">{profile.stats?.totalQuizzes || 0}</p>
+            <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-0.5 md:mb-1">Modules Cleared</p>
+            <p className="text-2xl md:text-3xl font-bold text-slate-900 leading-none tracking-tighter">{profile.stats?.totalQuizzes || 0}</p>
           </div>
         </motion.div>
         
         <motion.div 
           variants={itemVariants} 
           whileHover={{ y: -4 }}
-          className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-6 transition-all group"
+          className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 md:gap-6 transition-all group"
         >
-          <div className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl border border-white group-hover:bg-emerald-100 transition-colors">
-            <Star size={28} />
+          <div className="p-3 md:p-4 bg-emerald-50 text-emerald-600 rounded-2xl border border-white group-hover:bg-emerald-100 transition-colors">
+            <Star size={24} className="md:w-7 md:h-7" />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-1">Precision Rate</p>
-            <p className="text-3xl font-bold text-emerald-600 leading-none tracking-tighter">{profile.stats?.averageScore || 0}%</p>
+            <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-0.5 md:mb-1">Precision Rate</p>
+            <p className="text-2xl md:text-3xl font-bold text-emerald-600 leading-none tracking-tighter">{profile.stats?.averageScore || 0}%</p>
           </div>
         </motion.div>
 
         <motion.div 
           variants={itemVariants} 
           whileHover={{ y: -4 }}
-          className="bg-slate-900 p-8 rounded-3xl flex items-center gap-6 transition-all group"
+          className="bg-slate-900 p-6 md:p-8 rounded-3xl flex items-center gap-4 md:gap-6 transition-all group"
         >
-          <div className="p-4 bg-accent text-primary rounded-2xl border border-white/20 group-hover:scale-105 transition-transform">
-            <Trophy size={28} />
+          <div className="p-3 md:p-4 bg-accent text-primary rounded-2xl border border-white/20 group-hover:scale-105 transition-transform">
+            <Trophy size={24} className="md:w-7 md:h-7" />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-1">Global Standing</p>
-            <p className="text-3xl font-bold text-accent leading-none tracking-tighter">#1,204</p>
+            <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-0.5 md:mb-1">Global Standing</p>
+            <p className="text-2xl md:text-3xl font-bold text-accent leading-none tracking-tighter">#1,204</p>
           </div>
         </motion.div>
       </div>
 
       {/* Recommended Practice */}
-      <motion.section variants={itemVariants} className="space-y-8">
-        <div className="flex items-center justify-between">
+      <motion.section variants={itemVariants} className="space-y-6 md:space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-lg text-[8px] font-bold uppercase tracking-[0.1em] mb-1">Available Missions</div>
-            <h2 className="text-3xl font-bold uppercase tracking-tight">QUIZ <span className="text-primary">BATTLEGROUNDS</span></h2>
+            <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-lg text-[7px] md:text-[8px] font-bold uppercase tracking-[0.1em] mb-1">Available Missions</div>
+            <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-tight">QUIZ <span className="text-primary">BATTLEGROUNDS</span></h2>
           </div>
-          <button className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white h-10 px-6 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
+          <button className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white h-10 md:h-12 px-6 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all w-full md:w-auto">
             View All Map <ArrowRight size={14} className="inline ml-2" />
           </button>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {subjects.map((subject, idx) => (
             <motion.button
               key={idx}
               whileHover={{ y: -4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onStartPractice(subject.title)}
-              className="group relative overflow-hidden bg-white p-8 rounded-3xl border border-slate-100 text-left shadow-sm hover:shadow-md transition-all"
+              className="group relative overflow-hidden bg-white p-6 md:p-8 rounded-3xl border border-slate-100 text-left shadow-sm hover:shadow-md transition-all"
             >
-              <div className={`w-14 h-14 rounded-2xl ${subject.color} flex items-center justify-center text-white mb-6 shadow-sm relative z-10`}>
-                <Play size={24} fill="currentColor" />
+              <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl ${subject.color} flex items-center justify-center text-white mb-4 md:mb-6 shadow-sm relative z-10`}>
+                <Play size={20} className="md:w-6 md:h-6" fill="currentColor" />
               </div>
               <div className="relative z-10 space-y-1">
-                <h3 className="font-bold text-xl uppercase tracking-tight leading-none">{subject.title}</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">40 Questions • 60M Limit</p>
+                <h3 className="font-bold text-lg md:text-xl uppercase tracking-tight leading-none">{subject.title}</h3>
+                <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">40 Questions • 60M Limit</p>
               </div>
               
-              <div className="flex items-center justify-between mt-8 relative z-10">
-                <div className="flex -space-x-3">
+              <div className="flex items-center justify-between mt-6 md:mt-8 relative z-10">
+                <div className="flex -space-x-2 md:-space-x-3">
                    {[1,2,3,4].map(i => (
-                     <div key={i} className="w-8 h-8 rounded-xl border-2 border-white bg-slate-50 flex items-center justify-center overflow-hidden shadow-sm">
+                     <div key={i} className="w-7 h-7 md:w-8 md:h-8 rounded-xl border-2 border-white bg-slate-50 flex items-center justify-center overflow-hidden shadow-sm">
                         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Quizz${subject.title}${i}`} alt="user" className="w-full h-full" />
                      </div>
                    ))}
-                   <div className="w-8 h-8 rounded-xl border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-bold text-slate-400 shadow-sm">+12k</div>
+                   <div className="w-7 h-7 md:w-8 md:h-8 rounded-xl border-2 border-white bg-slate-100 flex items-center justify-center text-[7px] md:text-[8px] font-bold text-slate-400 shadow-sm">+12k</div>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-slate-900 text-accent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-md">
-                   <ArrowRight size={20} />
+                <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-900 text-accent flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-all shadow-md">
+                   <ArrowRight size={18} className="md:w-5 md:h-5" />
                 </div>
               </div>
 
@@ -155,38 +155,38 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ profile, onS
 
       {/* Recent Activity */}
       <motion.section variants={itemVariants} className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden relative">
-        <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 shadow-sm">
-                <Clock size={20} />
+        <div className="p-6 md:p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 shadow-sm">
+                <Clock size={16} className="md:w-5 md:h-5" />
             </div>
-            <h2 className="font-bold uppercase tracking-[0.1em] text-xs">Recently Completed Quizzes</h2>
+            <h2 className="font-bold uppercase tracking-[0.1em] text-[10px] md:text-xs">Recently Completed Quizzes</h2>
           </div>
-          <div className="px-3 py-1.5 bg-white rounded-lg border border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-300">Live Sync</div>
+          <div className="hidden sm:block px-3 py-1.5 bg-white rounded-lg border border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-300">Live Sync</div>
         </div>
         <div className="divide-y divide-slate-50">
           {[1,2,3].map(i => (
             <motion.div 
               key={i} 
               whileHover={{ backgroundColor: "rgba(241, 245, 249, 0.5)" }}
-              className="p-6 flex items-center justify-between transition-all cursor-pointer group relative"
+              className="p-4 md:p-6 flex items-center justify-between transition-all cursor-pointer group relative"
             >
-              <div className="flex items-center gap-6 relative z-10">
-                <div className="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-xl shadow-md group-hover:scale-105 transition-transform">
+              <div className="flex items-center gap-3 md:gap-6 relative z-10 min-w-0">
+                <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-base md:text-xl shrink-0 shadow-md group-hover:scale-105 transition-transform">
                   {i === 1 ? 'M' : i === 2 ? 'E' : 'P'}
                 </div>
-                <div className="space-y-1">
-                  <p className="text-xl font-bold uppercase tracking-tight leading-none">{i === 1 ? 'Mathematics' : i === 2 ? 'English Language' : 'Physics'}</p>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.1em]">2 days ago • JAMB 2024</p>
+                <div className="space-y-0.5 md:space-y-1 min-w-0">
+                  <p className="text-base md:text-xl font-bold uppercase tracking-tight leading-none truncate">{i === 1 ? 'Mathematics' : i === 2 ? 'English Language' : 'Physics'}</p>
+                  <p className="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-[0.1em]">2 days ago • JAMB 2024</p>
                 </div>
               </div>
-              <div className="flex items-center gap-8 relative z-10">
-                <div className="text-right space-y-1">
-                  <p className="text-3xl font-bold text-emerald-600 tracking-tighter leading-none">85%</p>
-                  <p className="text-[9px] text-slate-300 font-bold uppercase tracking-widest">Score Accuracy</p>
+              <div className="flex items-center gap-4 md:gap-8 relative z-10 shrink-0">
+                <div className="text-right space-y-0.5 md:space-y-1">
+                  <p className="text-xl md:text-3xl font-bold text-emerald-600 tracking-tighter leading-none">85%</p>
+                  <p className="text-[7px] md:text-[9px] text-slate-300 font-bold uppercase tracking-widest">Accuracy</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-200 group-hover:border-primary group-hover:text-primary transition-all flex items-center justify-center group-hover:bg-primary group-hover:text-white">
-                  <ArrowRight size={20} />
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-white border border-slate-200 text-slate-200 group-hover:border-primary group-hover:text-primary transition-all flex items-center justify-center group-hover:bg-primary group-hover:text-white">
+                  <ArrowRight size={16} className="md:w-5 md:h-5" />
                 </div>
               </div>
             </motion.div>

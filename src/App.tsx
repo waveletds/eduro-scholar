@@ -163,7 +163,7 @@ export default function App() {
         <Header profile={profile} currentView={currentView} setView={setView} />
       )}
       
-      <main className={`max-w-7xl mx-auto px-6 relative z-10 ${selectedSubject ? 'pt-0' : 'pt-40'}`}>
+      <main className={`max-w-7xl mx-auto px-4 md:px-6 relative z-10 ${selectedSubject ? 'pt-0' : 'pt-28 md:pt-40'}`}>
         {/* Score Overlay */}
         <AnimatePresence>
             {lastQuizScore !== null && (
@@ -171,22 +171,22 @@ export default function App() {
                     initial={{ y: -50, opacity: 0, scale: 0.9 }}
                     animate={{ y: 0, opacity: 1, scale: 1 }}
                     exit={{ y: -50, opacity: 0, scale: 0.9 }}
-                    className="mb-12 bg-slate-900 text-white p-10 rounded-[40px] shadow-2xl flex items-center justify-between neo-3d border-4 border-slate-800"
+                    className="mb-8 md:mb-12 bg-slate-900 text-white p-6 md:p-10 rounded-2xl md:rounded-[40px] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 border-4 border-slate-800"
                 >
-                    <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center neo-3d shadow-xl">
-                            <CheckCircle2 size={36} />
+                    <div className="flex items-center gap-4 md:gap-6">
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-emerald-500 rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl">
+                            <CheckCircle2 size={24} className="md:w-9 md:h-9" />
                         </div>
                         <div className="space-y-1">
-                            <p className="font-black text-2xl uppercase tracking-tighter italic italic">SESSION_HALTED</p>
-                            <p className="text-emerald-500 text-[10px] font-black uppercase tracking-[0.2em]">Efficiency Rating: {lastQuizScore}% • Contribution Logged</p>
+                            <p className="font-black text-lg md:text-2xl uppercase tracking-tighter italic">SESSION_HALTED</p>
+                            <p className="text-emerald-500 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em]">Efficiency Rating: {lastQuizScore}% • Contribution Logged</p>
                         </div>
                     </div>
                     <motion.button 
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setLastQuizScore(null)}
-                        className="bg-white text-primary px-8 h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] neo-3d"
+                        className="w-full md:w-auto bg-white text-primary px-8 h-12 md:h-14 rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px]"
                     >
                         Acknowledge
                     </motion.button>

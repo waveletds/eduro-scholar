@@ -337,45 +337,45 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
 
       <div className="grid lg:grid-cols-3 gap-10">
         {/* Balance Card */}
-        <div className="lg:col-span-1 space-y-8">
+        <div className="lg:col-span-1 space-y-4 md:space-y-8">
           <motion.div 
             whileHover={{ y: -4 }}
-            className="bg-slate-900 text-white p-12 rounded-[56px] shadow-2xl relative overflow-hidden group min-h-[420px] flex flex-col justify-between"
+            className="bg-slate-900 text-white p-6 md:p-12 rounded-[32px] md:rounded-[56px] shadow-2xl relative overflow-hidden group min-h-[300px] md:min-h-[420px] flex flex-col justify-between"
           >
-            <div className="relative z-10 space-y-12">
+            <div className="relative z-10 space-y-8 md:space-y-12">
               <div className="flex items-center justify-between">
-                <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-[28px] border border-white/20 flex items-center justify-center text-accent shadow-inner">
-                  <Wallet size={32} />
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 backdrop-blur-md rounded-2xl md:rounded-[28px] border border-white/20 flex items-center justify-center text-accent shadow-inner">
+                  <Wallet size={24} className="md:w-8 md:h-8" />
                 </div>
                 <div className="text-right">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-white/30">Scholar Wallet</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-accent mt-2">LINK: {profile.walletId || 'INITIATING...'}</p>
+                    <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-wider text-white/30">Scholar Wallet</p>
+                    <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-accent mt-1 md:mt-2">LINK: {profile.walletId || 'INITIATING...'}</p>
                 </div>
               </div>
               
-              <div className="space-y-3">
-                <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.3em]">Available Liquidity</p>
+              <div className="space-y-2 md:space-y-3">
+                <p className="text-[9px] md:text-[11px] font-black text-white/40 uppercase tracking-[0.3em]">Available Liquidity</p>
                 <div className="flex items-baseline gap-2">
-                   <span className="text-6xl font-black tracking-tighter">₦{profile.walletBalance?.toLocaleString() || 0}</span>
+                   <span className="text-4xl md:text-6xl font-black tracking-tighter">₦{profile.walletBalance?.toLocaleString() || 0}</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
                  <motion.button 
                    whileHover={{ scale: 1.02 }}
                    whileTap={{ scale: 0.98 }}
                    onClick={() => setActiveTab('overview')}
-                   className="bg-white text-primary py-5 rounded-[24px] font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg"
+                   className="bg-white text-primary py-4 md:py-5 rounded-xl md:rounded-[24px] font-black uppercase text-[9px] md:text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg"
                  >
-                    <ArrowDownLeft size={16} /> Fund
+                    <ArrowDownLeft size={14} className="md:w-4 md:h-4" /> Fund
                  </motion.button>
                  <motion.button 
                    whileHover={{ scale: 1.02 }}
                    whileTap={{ scale: 0.98 }}
                    onClick={() => setActiveModal('withdraw')}
-                   className="bg-white/10 text-white backdrop-blur-md py-5 rounded-[24px] font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 border border-white/10 hover:bg-white/20 transition-all"
+                   className="bg-white/10 text-white backdrop-blur-md py-4 md:py-5 rounded-xl md:rounded-[24px] font-black uppercase text-[9px] md:text-[10px] tracking-widest flex items-center justify-center gap-2 border border-white/10 hover:bg-white/20 transition-all"
                  >
-                    <ArrowUpRight size={16} /> Withdraw
+                    <ArrowUpRight size={14} className="md:w-4 md:h-4" /> Withdraw
                  </motion.button>
               </div>
             </div>
@@ -385,23 +385,23 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
           </motion.div>
 
           {/* Monnify Dedicated Account Card */}
-          <div className="bg-emerald-50 rounded-[48px] p-10 border border-emerald-100 shadow-sm space-y-6 relative overflow-hidden group">
+          <div className="bg-emerald-50 rounded-[32px] md:rounded-[48px] p-6 md:p-10 border border-emerald-100 shadow-sm space-y-6 relative overflow-hidden group">
              <div className="flex items-center justify-between relative z-10">
-                <div className="w-14 h-14 rounded-[24px] bg-white flex items-center justify-center text-emerald-600 shadow-sm">
-                   <Building size={28} />
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl md:rounded-[24px] bg-white flex items-center justify-center text-emerald-600 shadow-sm">
+                   <Building size={24} className="md:w-7 md:h-7" />
                 </div>
-                <div className="text-[10px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-2 px-4 py-1.5 bg-white/50 rounded-full border border-emerald-200">
-                   Secured Node <ShieldCheck size={14} />
+                <div className="text-[8px] md:text-[10px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-2 px-3 md:px-4 py-1.5 bg-white/50 rounded-full border border-emerald-200">
+                   Secured Node <ShieldCheck size={12} className="md:w-[14px] md:h-[14px]" />
                 </div>
              </div>
              
-             <div className="space-y-6 relative z-10">
-                <p className="text-[10px] font-black text-emerald-800/60 uppercase tracking-[0.2em]">Dedicated Funding Portal</p>
+             <div className="space-y-4 md:space-y-6 relative z-10">
+                <p className="text-[8px] md:text-[10px] font-black text-emerald-800/60 uppercase tracking-[0.2em]">Dedicated Funding Portal</p>
                 {monnifyAccount ? (
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                       <p className="text-3xl font-black text-slate-900 tracking-tight">{monnifyAccount.monnifyAccountNumber}</p>
-                       <p className="text-sm font-black text-emerald-700 tracking-wide">{monnifyAccount.monnifyBankName}</p>
+                  <div className="space-y-4 md:space-y-6">
+                    <div className="space-y-1 md:space-y-2">
+                       <p className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">{monnifyAccount.monnifyAccountNumber}</p>
+                       <p className="text-xs md:text-sm font-black text-emerald-700 tracking-wide">{monnifyAccount.monnifyBankName}</p>
                     </div>
                     <button 
                       onClick={() => copyToClipboard(monnifyAccount.monnifyAccountNumber)}
@@ -435,14 +435,14 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
         </div>
 
         {/* Action Grid & History */}
-        <div className="lg:col-span-2 space-y-10">
-           <div className="bg-white rounded-[56px] p-10 border border-slate-100 shadow-sm space-y-10">
+        <div className="lg:col-span-2 space-y-6 md:space-y-10">
+           <div className="bg-white rounded-[32px] md:rounded-[56px] p-6 md:p-10 border border-slate-100 shadow-sm space-y-6 md:space-y-10">
               <div className="flex items-center justify-between">
-                 <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">Utility Protocols</h3>
-                 <div className="h-px flex-1 bg-slate-50 mx-6"></div>
+                 <h3 className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">Utility Protocols</h3>
+                 <div className="h-px flex-1 bg-slate-50 mx-4 md:mx-6"></div>
               </div>
               
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
                  {[
                    { id: 'airtime', icon: Smartphone, label: 'Airtime', color: 'text-orange-500', bg: 'bg-orange-50', sub: 'Signal' },
                    { id: 'data', icon: Wifi, label: 'Data', color: 'text-blue-500', bg: 'bg-blue-50', sub: 'Bandwidth' },
@@ -452,67 +452,68 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
                    <button 
                      key={item.id}
                      onClick={() => setActiveModal(item.id as any)}
-                     className={`${item.bg} p-8 rounded-[40px] flex flex-col items-center justify-center gap-4 transition-all hover:scale-[1.05] hover:shadow-lg border border-transparent hover:border-white shadow-sm group`}
+                     className={`${item.bg} p-6 md:p-8 rounded-3xl md:rounded-[40px] flex flex-col items-center justify-center gap-3 md:gap-4 transition-all hover:scale-[1.05] hover:shadow-lg border border-transparent hover:border-white shadow-sm group`}
                    >
-                     <div className="w-14 h-14 bg-white rounded-[20px] flex items-center justify-center shadow-sm group-hover:rotate-6 transition-transform">
-                        <item.icon className={item.color} size={28} />
+                     <div className="w-10 h-10 md:w-14 md:h-14 bg-white rounded-xl md:rounded-[20px] flex items-center justify-center shadow-sm group-hover:rotate-6 transition-transform">
+                        <item.icon className={`${item.color} md:w-7 md:h-7`} size={20} />
                      </div>
                      <div className="text-center">
-                        <p className={`text-[10px] font-black uppercase tracking-[0.15em] ${item.color}`}>{item.label}</p>
-                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 opacity-50">{item.sub}</p>
+                        <p className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.15em] ${item.color}`}>{item.label}</p>
+                        <p className="text-[7px] md:text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 opacity-50">{item.sub}</p>
                      </div>
                    </button>
                  ))}
               </div>
            </div>
 
-           <div className="space-y-6">
-              <div className="flex items-center gap-8 border-b border-slate-100">
+           <div className="space-y-4 md:space-y-6">
+              {/* ... tabs ... */}
+              <div className="flex items-center gap-4 md:gap-8 border-b border-slate-100 px-2 md:px-0">
                  <button 
                     onClick={() => setActiveTab('overview')}
-                    className={`pb-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'overview' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`pb-3 md:pb-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'overview' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
                  >
                     Asset Flow
                     {activeTab === 'overview' && <motion.div layoutId="wallet-tab" className="absolute bottom-[-1px] left-0 right-0 h-1 bg-primary rounded-t-full shadow-[0_0_15px_rgba(20,184,166,0.5)]" />}
                  </button>
                  <button 
                     onClick={() => setActiveTab('history')}
-                    className={`pb-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'history' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
+                    className={`pb-3 md:pb-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'history' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'}`}
                  >
                     Revenue Audit
                     {activeTab === 'history' && <motion.div layoutId="wallet-tab" className="absolute bottom-[-1px] left-0 right-0 h-1 bg-primary rounded-t-full shadow-[0_0_15px_rgba(20,184,166,0.5)]" />}
                  </button>
               </div>
 
-              <div className="bg-white rounded-[48px] border border-slate-100 shadow-sm overflow-hidden min-h-[400px]">
+              <div className="bg-white rounded-[40px] md:rounded-[48px] border border-slate-100 shadow-sm overflow-hidden min-h-[400px]">
                  {activeTab === 'overview' ? (
-                   <div className="p-10 space-y-10">
-                      <div className="grid md:grid-cols-2 gap-8">
-                         <div className="p-8 bg-slate-50 rounded-[40px] border border-white shadow-sm space-y-6">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Yield Projections</h4>
-                            <div className="space-y-4">
+                   <div className="p-6 md:p-10 space-y-8 md:space-y-10">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                         <div className="p-6 md:p-8 bg-slate-50 rounded-[32px] md:rounded-[40px] border border-white shadow-sm space-y-4 md:space-y-6">
+                            <h4 className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">Yield Projections</h4>
+                            <div className="space-y-2 md:space-y-4">
                                <div className="flex items-baseline gap-2">
-                                  <span className="text-4xl font-black text-slate-900">₦{profile.stats?.monthlyEarnings?.toLocaleString() || 0}</span>
-                                  <span className="text-[10px] font-bold text-emerald-500">+12%</span>
+                                  <span className="text-3xl md:text-4xl font-black text-slate-900">₦{profile.stats?.monthlyEarnings?.toLocaleString() || 0}</span>
+                                  <span className="text-[9px] md:text-[10px] font-bold text-emerald-500">+12%</span>
                                </div>
-                               <p className="text-[10px] text-slate-400 font-medium uppercase leading-tight">Neural algorithmic projections suggest a 15% increase in next cycle rewards.</p>
+                               <p className="text-[9px] md:text-[10px] text-slate-400 font-medium uppercase leading-tight">Neural algorithmic projections suggest a 15% increase in next cycle rewards.</p>
                             </div>
                          </div>
-                         <div className="p-8 bg-primary rounded-[40px] text-white shadow-lg space-y-6 relative overflow-hidden">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-accent z-10 relative">Scholar Rank Bonus</h4>
-                            <div className="z-10 relative space-y-2">
-                               <p className="text-2xl font-black">Tier 1 Scholar</p>
-                               <p className="text-[9px] font-bold uppercase tracking-widest opacity-60">Unlock Tier 2 at ₦50k Total Revenue</p>
+                         <div className="p-6 md:p-8 bg-primary rounded-[32px] md:rounded-[40px] text-white shadow-lg space-y-4 md:space-y-6 relative overflow-hidden">
+                            <h4 className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-accent z-10 relative">Scholar Rank Bonus</h4>
+                            <div className="z-10 relative space-y-1 md:space-y-2">
+                               <p className="text-xl md:text-2xl font-black">Tier 1 Scholar</p>
+                               <p className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest opacity-60">Unlock Tier 2 at ₦50k Total Revenue</p>
                             </div>
                             <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
                          </div>
                       </div>
-                      <div className="pt-10 border-t border-slate-50">
-                         <div className="flex items-center justify-between mb-8">
-                            <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Live Network Sync</h4>
+                      <div className="pt-8 md:pt-10 border-t border-slate-50">
+                         <div className="flex items-center justify-between mb-6 md:mb-8">
+                            <h4 className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Live Network Sync</h4>
                             <div className="flex items-center gap-2">
                                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></div>
-                               <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500">Real-time Data</span>
+                               <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-emerald-500">Real-time Data</span>
                             </div>
                          </div>
                          <TransactionHistory />

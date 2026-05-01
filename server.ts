@@ -70,6 +70,11 @@ const monnifyService = {
         }
       });
 
+      if (response.data.requestStatus !== 'SUCCESS') {
+        console.error('Monnify Request Failed:', response.data);
+        throw new Error(response.data.responseMessage || 'Failed to create virtual account');
+      }
+
       return response.data.responseBody;
     } catch (error: any) {
       console.error('Monnify Reserved Account Error:', error.response?.data || error.message);
@@ -212,6 +217,11 @@ async function startServer() {
         name: profile.display_name || displayName || 'Scholar',
         email: profile.email || email
       });
+
+      if (!monnifyData || !monnifyData.accounts || monnifyData.accounts.length === 0) {
+        console.error('Monnify response missing accounts:', monnifyData);
+        throw new Error('Banking node failed to allocate an address. Please try again.');
+      }
 
       const bankDetails = monnifyData.accounts[0];
       const walletId = profile.wallet_id || (profile.display_name?.split(' ')[0] || 'scholar').toLowerCase() + Math.floor(1000 + Math.random() * 9000);
