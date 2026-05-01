@@ -85,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({ profile, currentView, setView })
               <div className={`p-1.5 rounded-lg border ${currentView === 'wallet' ? 'bg-slate-800 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
                 <Wallet size={16} className={currentView === 'wallet' ? 'text-accent' : 'text-primary'} />
               </div>
-              <span className="text-sm font-bold uppercase tracking-tight">₦{profile.walletBalance?.toLocaleString() || 0}</span>
+              <span className="text-sm font-bold uppercase tracking-tight">₦{profile?.walletBalance?.toLocaleString() || 0}</span>
             </motion.button>
             
             <div className="flex items-center gap-4 pl-6 border-l-2 border-slate-100">

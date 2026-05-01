@@ -68,9 +68,35 @@ export default function App() {
     return <LandingPage />;
   }
 
-  if (user && !profile && !loading) {
-     // Profile is being created or user needs to pick role
-     return <RoleSelection userId={user.id} onComplete={() => window.location.reload()} />;
+  if (user && !profile) {
+     // Profile is being created or still loading (but timed out)
+     if (loading && loadingTimedOut) {
+        return (
+          <div className="min-h-screen bg-white flex items-center justify-center p-6 text-center">
+            <div className="max-w-md space-y-6">
+              <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto border border-rose-100">
+                <ShieldCheck size={40} />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold uppercase tracking-tight">Profile Sync Failed</h2>
+                <p className="text-sm text-slate-400 font-medium leading-relaxed">We found your account but couldn't retrieve your scholar profile. This usually happens on slow connections.</p>
+              </div>
+              <button 
+                onClick={() => window.location.reload()}
+                className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg"
+              >
+                Retry Profile Sync
+              </button>
+            </div>
+          </div>
+        );
+     }
+     
+     if (!loading) {
+        return <RoleSelection userId={user.id} onComplete={() => window.location.reload()} />;
+     }
+
+     return null; // Should be covered by main loading check
   }
 
   const renderContent = () => {
