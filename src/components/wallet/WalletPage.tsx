@@ -30,7 +30,12 @@ interface WalletPageProps {
 
 export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview');
-  const [monnifyAccount, setMonnifyAccount] = useState<any>(null);
+  const [monnifyAccount, setMonnifyAccount] = useState<any>(
+    profile.monnifyAccountNumber ? {
+      monnifyAccountNumber: profile.monnifyAccountNumber,
+      monnifyBankName: profile.monnifyBankName
+    } : null
+  );
   const [activeModal, setActiveModal] = useState<'transfer' | 'withdraw' | 'airtime' | 'data' | 'course' | null>(null);
   
   // State for forms
@@ -52,12 +57,26 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    loadVirtualAccount();
+    if (!monnifyAccount) {
+      loadVirtualAccount();
+    }
   }, [profile.uid]);
 
   const loadVirtualAccount = async () => {
-    const data = await dbService.getVirtualAccount(profile.uid, profile.displayName, profile.email);
-    if (data) setMonnifyAccount(data);
+    setIsLoading(true);
+    setError('');
+    try {
+      const data = await dbService.getVirtualAccount(profile.uid, profile.displayName, profile.email);
+      if (data && !data.error) {
+        setMonnifyAccount(data);
+      } else if (data && data.error) {
+        setError(data.error);
+      }
+    } catch (err: any) {
+      setError('Connection to banking node interrupted.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const copyToClipboard = (text: string) => {
@@ -392,9 +411,23 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
                     </button>
                   </div>
                 ) : (
-                  <div className="animate-pulse space-y-4">
-                     <div className="h-10 w-full bg-emerald-200/50 rounded-2xl"></div>
-                     <div className="h-6 w-1/2 bg-emerald-200/50 rounded-xl"></div>
+                  <div className="space-y-4">
+                     {isLoading ? (
+                       <div className="animate-pulse space-y-4">
+                          <div className="h-10 w-full bg-emerald-200/50 rounded-2xl"></div>
+                          <div className="h-6 w-1/2 bg-emerald-200/50 rounded-xl"></div>
+                       </div>
+                     ) : (
+                       <div className="space-y-4">
+                          <p className="text-[10px] text-emerald-600 font-bold uppercase leading-relaxed">No active funding node detected.</p>
+                          <button 
+                            onClick={loadVirtualAccount}
+                            className="w-full h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg"
+                          >
+                             Generate Node Address
+                          </button>
+                       </div>
+                     )}
                   </div>
                 )}
              </div>

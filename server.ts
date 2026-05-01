@@ -37,8 +37,23 @@ const monnifyService = {
   },
 
   async createReservedAccount(user: { id: string, name: string, email: string }) {
-    const token = await this.getAccessToken();
+    const apiKey = process.env.MONNIFY_API_KEY;
+    const secretKey = process.env.MONNIFY_SECRET_KEY;
     const contractCode = process.env.MONNIFY_CONTRACT_CODE;
+
+    if (!apiKey || !secretKey || !contractCode) {
+      console.warn('Monnify credentials not configured, providing mock virtual account');
+      return {
+        accounts: [
+          {
+            accountNumber: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
+            bankName: 'EDURO TEST BANK'
+          }
+        ]
+      };
+    }
+
+    const token = await this.getAccessToken();
 
     try {
       const response = await axios.post(`${MONNIFY_BASE_URL}/bank-transfer/reserved-accounts`, {
@@ -174,7 +189,7 @@ async function startServer() {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('monnify_account_number, monnify_bank_name, display_name, email')
+        .select('monnify_account_number, monnify_bank_name, display_name, email, wallet_id')
         .eq('id', userId)
         .single();
 
@@ -185,8 +200,9 @@ async function startServer() {
       // If already has account, return it
       if (profile.monnify_account_number) {
         return res.json({
-          accountNumber: profile.monnify_account_number,
-          bankName: profile.monnify_bank_name
+          monnifyAccountNumber: profile.monnify_account_number,
+          monnifyBankName: profile.monnify_bank_name,
+          walletId: profile.wallet_id
         });
       }
 
@@ -198,7 +214,7 @@ async function startServer() {
       });
 
       const bankDetails = monnifyData.accounts[0];
-      const walletId = (profile.display_name?.split(' ')[0] || 'scholar').toLowerCase() + Math.floor(1000 + Math.random() * 9000);
+      const walletId = profile.wallet_id || (profile.display_name?.split(' ')[0] || 'scholar').toLowerCase() + Math.floor(1000 + Math.random() * 9000);
 
       await supabase
         .from('profiles')
