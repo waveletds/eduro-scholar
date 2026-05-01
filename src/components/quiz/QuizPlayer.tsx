@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Clock, ChevronLeft, ChevronRight, Flag, Send, CheckCircle2, XCircle } from 'lucide-react';
 import { dbService } from '../../services/dbService';
-import { collection, query, where, limit, getDocs } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { supabase } from '../../lib/supabase';
 
 interface QuizPlayerProps {
   subject: string;
@@ -22,41 +21,32 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({ subject, userId, onCompl
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      // For MVP, we fetch approved questions for the subject
-      const q = query(
-        collection(db, 'questions'),
-        where('subject', '==', subject.replace('JAMB ', '')),
-        where('status', '==', 'approved'),
-        limit(10) // Small batch for testing
-      );
-      
-      const results = await dbService.getQuestions(q);
-      if (results && results.length > 0) {
-        setQuestions(results);
-      } else {
-        // Mock some data if DB is empty for initial demo
-        setQuestions([
-          {
-            text: "What is the primary function of the root in plants?",
-            options: ["Photosynthesis", "Absorption of water and minerals", "Seed production", "Transpiration"],
-            correctOption: 1,
-            explanation: "Roots absorb water and dissolved minerals from the soil and transport them upward."
-          },
-          {
-            text: "In the sentence 'The quick brown fox jumps over the lazy dog', which word is a verb?",
-            options: ["Quick", "Brown", "Jumps", "Lazy"],
-            correctOption: 2,
-            explanation: "'Jumps' is the action being performed."
-          },
-          {
-             text: "Solve for x: 2x + 5 = 15",
-             options: ["5", "10", "7.5", "20"],
-             correctOption: 0,
-             explanation: "2x = 15 - 5 => 2x = 10 => x = 5"
-          }
-        ]);
+      try {
+        const { data: results, error } = await supabase
+          .from('questions')
+          .select('*')
+          .eq('subject', subject.replace('JAMB ', ''))
+          .eq('status', 'approved')
+          .limit(10);
+        
+        if (!error && results && results.length > 0) {
+          setQuestions(results);
+        } else {
+          // Mock data
+          setQuestions([
+            {
+              text: "What is the primary function of the root in plants?",
+              options: ["Photosynthesis", "Absorption of water and minerals", "Seed production", "Transpiration"],
+              correct_option: 1,
+              explanation: "Roots absorb water and dissolved minerals from the soil and transport them upward."
+            }
+          ]);
+        }
+      } catch (e) {
+        console.error("Fetch error:", e);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchQuestions();
@@ -76,27 +66,27 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({ subject, userId, onCompl
   const handleFinish = async () => {
     setIsFinished(true);
     let correct = 0;
-    const answeredQuestionIds: string[] = [];
     
     questions.forEach((q, idx) => {
-      if (answers[idx] === q.correctOption) {
+      const correctOpt = q.correct_option !== undefined ? q.correct_option : q.correctOption;
+      if (answers[idx] === correctOpt) {
         correct++;
       }
-      if (q.id) answeredQuestionIds.push(q.id);
     });
     
-    const finalScore = Math.round((correct / questions.length) * 100);
+    const finalScore = Math.round((questions.length > 0 ? (correct / questions.length) : 0) * 100);
     await dbService.saveAttempt(userId, {
       subject,
       score: finalScore,
-      totalQuestions: questions.length,
+      total_questions: questions.length,
       duration: 3600 - timeLeft
     });
 
     // Record royalties for contributors
     for (const q of questions) {
-      if (q.creatorId && q.id) {
-        await dbService.recordUsageRoyalty(q.id, q.creatorId);
+      const creatorId = q.creator_id || q.creatorId;
+      if (creatorId && q.id) {
+        await dbService.recordUsageRoyalty(q.id, creatorId);
       }
     }
     

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LogOut, User, Wallet, BookOpen, PenTool, LayoutDashboard, ShieldCheck, Zap, Trophy, Smartphone, Globe } from 'lucide-react';
-import { auth, logout } from '../../services/firebase';
+import { authService } from '../../services/authService';
 
 interface HeaderProps {
   profile: any;
@@ -11,6 +11,14 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ profile, currentView, setView }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   const navItems = [
     { id: 'dashboard', label: 'PORTAL', icon: LayoutDashboard, color: 'bg-primary' },
@@ -84,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({ profile, currentView, setView })
               <motion.div 
                 whileHover={{ rotate: 5, scale: 1.1 }}
                 className="relative cursor-pointer"
-                onClick={() => logout()}
+                onClick={handleLogout}
               >
                 {profile?.photoURL ? (
                   <img src={profile.photoURL} alt="User" className="w-11 h-11 rounded-xl border-2 border-white shadow-md hover:border-danger transition-colors object-cover" />

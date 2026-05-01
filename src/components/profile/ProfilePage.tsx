@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Camera, Edit2, MessageSquare, Send, Heart, Share2, UserPlus, Users, Link as LinkIcon } from 'lucide-react';
 import { dbService } from '../../services/dbService';
-import { auth } from '../../services/firebase';
+import { supabase } from '../../lib/supabase';
 
 interface ProfilePageProps {
   profile: any;
@@ -23,7 +23,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
   const loadPosts = async () => {
     const allPosts = await dbService.getPosts();
     // Filter for user's own posts for the profile timeline
-    setPosts(allPosts?.filter((p: any) => p.authorId === profile.uid) || []);
+    setPosts(allPosts?.filter((p: any) => p.author_id === profile.uid) || []);
   };
 
   const handleUpdateSocial = async () => {
@@ -243,24 +243,24 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
                   className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm space-y-6"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden">
-                        <img src={post.authorPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.authorId}`} alt="author" />
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden">
+                          <img src={post.author_photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_id}`} alt="author" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 leading-none">{post.author_name}</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                            {new Date(post.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-bold text-slate-900 leading-none">{post.authorName}</p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                          {post.createdAt?.toDate().toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
                   </div>
 
                   <p className="text-lg text-slate-700 leading-relaxed font-medium">{post.content}</p>
 
                   <div className="flex items-center gap-8 pt-4 border-t border-slate-50">
                     <button className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors">
-                      <Heart size={16} /> {post.likesCount || 0} Likes
+                      <Heart size={16} /> {post.likes_count || 0} Likes
                     </button>
                     <button className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-primary transition-colors">
                       <MessageSquare size={16} /> 0 Comments

@@ -6,11 +6,12 @@ import {
   Clock, 
   Wallet,
   TrendingUp,
-  Download
+  Download,
+  Smartphone,
+  Wifi,
+  BookOpen
 } from 'lucide-react';
-import { dbService } from '../../services/dbService';
-import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
-import { db, auth } from '../../services/firebase';
+import { supabase } from '../../lib/supabase';
 
 export const TransactionHistory: React.FC = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -18,19 +19,19 @@ export const TransactionHistory: React.FC = () => {
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      if (!auth.currentUser) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
       
       try {
-        const q = query(
-          collection(db, 'transactions'),
-          where('userId', '==', auth.currentUser.uid),
-          orderBy('timestamp', 'desc'),
-          limit(50)
-        );
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: false })
+          .limit(50);
         
-        const querySnapshot = await getDocs(q);
-        const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setTransactions(docs);
+        if (error) throw error;
+        setTransactions(data || []);
       } catch (error) {
         console.error("Failed to fetch transactions:", error);
       } finally {
@@ -47,6 +48,9 @@ export const TransactionHistory: React.FC = () => {
       case 'reward': return <ArrowDownCircle size={18} className="text-blue-500" />;
       case 'withdrawal': return <ArrowUpCircle size={18} className="text-rose-500" />;
       case 'deposit': return <ArrowDownCircle size={18} className="text-emerald-500" />;
+      case 'airtime': return <Smartphone size={18} className="text-orange-500" />;
+      case 'data': return <Wifi size={18} className="text-blue-500" />;
+      case 'course_subscription': return <BookOpen size={18} className="text-indigo-500" />;
       default: return <Wallet size={18} className="text-slate-400" />;
     }
   };
@@ -58,6 +62,9 @@ export const TransactionHistory: React.FC = () => {
         case 'contribution_payout': return 'Contribution Bonus';
         case 'withdrawal': return 'Withdrawal';
         case 'deposit': return 'Internal Deposit';
+        case 'airtime': return 'Airtime Signal';
+        case 'data': return 'Data Bandwidth';
+        case 'course_subscription': return 'Course Intake';
         default: return type.replace('_', ' ');
     }
   };
@@ -104,13 +111,13 @@ export const TransactionHistory: React.FC = () => {
                   <div className="space-y-1">
                     <p className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors tracking-tight">{getLabel(tx.type)}</p>
                     <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest flex items-center gap-2">
-                       {tx.timestamp?.toDate().toLocaleDateString()} | ID: {tx.id.substring(0, 8)}
+                       {new Date(tx.created_at).toLocaleDateString()} | ID: {tx.id.toString().substring(0, 8)}
                     </p>
                   </div>
                 </div>
                 <div className="text-right space-y-1">
-                  <p className={`text-2xl font-bold tracking-tight ${tx.type === 'withdrawal' ? 'text-rose-600' : 'text-emerald-600'}`}>
-                    {tx.type === 'withdrawal' ? '-' : '+'}₦{tx.amount.toLocaleString()}
+                  <p className={`text-2xl font-bold tracking-tight ${['withdrawal', 'airtime', 'data', 'course_subscription'].includes(tx.type) ? 'text-rose-600' : 'text-emerald-600'}`}>
+                    {['withdrawal', 'airtime', 'data', 'course_subscription'].includes(tx.type) ? '-' : '+'}₦{tx.amount.toLocaleString()}
                   </p>
                   <span className={`text-[9px] font-bold uppercase px-2.5 py-1 rounded-md border border-white/20 shadow-sm ${tx.status === 'completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
                     {tx.status}

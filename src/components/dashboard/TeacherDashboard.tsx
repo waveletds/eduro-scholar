@@ -11,11 +11,7 @@ import {
   ChevronRight,
   Filter
 } from 'lucide-react';
-import { dbService } from '../../services/dbService';
-import { auth } from '../../services/firebase';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
-import { db } from '../../services/firebase';
-
+import { supabase } from '../../lib/supabase';
 import { TransactionHistory } from '../wallet/TransactionHistory';
 
 interface TeacherDashboardProps {
@@ -30,15 +26,23 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ profile, onA
 
   useEffect(() => {
     const fetchTeacherQuestions = async () => {
-      if (!auth.currentUser) return;
-      const q = query(
-        collection(db, 'questions'),
-        where('creatorId', '==', auth.currentUser.uid),
-        orderBy('createdAt', 'desc')
-      );
-      const docs = await dbService.getQuestions(q);
-      setQuestions(docs || []);
-      setLoading(false);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('questions')
+          .select('*')
+          .eq('creator_id', session.user.id)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        setQuestions(data || []);
+      } catch (error) {
+        console.error("Failed to fetch teacher questions:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchTeacherQuestions();
@@ -157,7 +161,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ profile, onA
                             <p className="text-lg font-bold text-slate-800 line-clamp-2 italic leading-tight tracking-tight">{q.text}</p>
                             <div className="flex items-center gap-6 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
                               <span className="flex items-center gap-2 px-2.5 py-1 bg-white rounded-lg shadow-inner border border-slate-100"><Users size={12} /> {q.usageCount} Sessions</span>
-                              <span className="flex items-center gap-2 px-2.5 py-1 bg-white rounded-lg shadow-inner border border-slate-100"><Clock size={12} /> {q.createdAt?.toDate().toLocaleDateString()}</span>
+                              <span className="flex items-center gap-2 px-2.5 py-1 bg-white rounded-lg shadow-inner border border-slate-100"><Clock size={12} /> {new Date(q.created_at).toLocaleDateString()}</span>
                             </div>
                           </div>
                           <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-white transition-all">

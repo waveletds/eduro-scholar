@@ -13,8 +13,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { dbService } from '../../services/dbService';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { supabase } from '../../lib/supabase';
 
 export const ModerationDashboard: React.FC = () => {
   const [pendingQuestions, setPendingQuestions] = useState<any[]>([]);
@@ -25,14 +24,19 @@ export const ModerationDashboard: React.FC = () => {
 
   const fetchPending = async () => {
     setLoading(true);
-    const q = query(
-      collection(db, 'questions'),
-      where('status', '==', 'pending'),
-      orderBy('createdAt', 'asc')
-    );
-    const docs = await dbService.getQuestions(q);
-    setPendingQuestions(docs || []);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from('questions')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: true });
+      
+      setPendingQuestions(data || []);
+    } catch (e) {
+      console.error("Moderation fetch error:", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -104,10 +108,10 @@ export const ModerationDashboard: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <span className="text-[9px] font-bold uppercase text-primary tracking-widest">{q.subject}</span>
                       <span className="text-slate-200">|</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{q.examType}</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{q.exam_type || q.examType}</span>
                     </div>
                     <p className="text-lg font-bold text-slate-900 line-clamp-2 leading-tight tracking-tight">{q.text}</p>
-                    <p className="text-[10px] font-medium text-slate-400 mt-2">By: {q.creatorName || q.creatorId}</p>
+                    <p className="text-[10px] font-medium text-slate-400 mt-2">By: {q.creator_name || q.creatorName || q.creator_id || q.creatorId}</p>
                   </div>
                 </motion.button>
               ))}
@@ -139,14 +143,17 @@ export const ModerationDashboard: React.FC = () => {
                 <div className="space-y-4 relative z-10">
                   <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Responses</h4>
                   <div className="grid gap-3">
-                    {selectedQuestion.options.map((opt: string, i: number) => (
-                      <div key={i} className={`p-5 rounded-2xl border flex items-center gap-4 transition-all ${i === selectedQuestion.correctOption ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-50 bg-slate-50/50'}`}>
-                         <span className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg border-2 ${i === selectedQuestion.correctOption ? 'bg-emerald-500 text-white border-emerald-400 shadow-md' : 'bg-white text-slate-300 border-slate-100'}`}>
-                            {String.fromCharCode(65 + i)}
-                         </span>
-                         <span className={`text-lg font-bold tracking-tight ${i === selectedQuestion.correctOption ? 'text-emerald-700' : 'text-slate-600'}`}>{opt}</span>
-                      </div>
-                    ))}
+                    {selectedQuestion.options.map((opt: string, i: number) => {
+                      const correctOpt = selectedQuestion.correct_option !== undefined ? selectedQuestion.correct_option : selectedQuestion.correctOption;
+                      return (
+                        <div key={i} className={`p-5 rounded-2xl border flex items-center gap-4 transition-all ${i === correctOpt ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-50 bg-slate-50/50'}`}>
+                           <span className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg border-2 ${i === correctOpt ? 'bg-emerald-500 text-white border-emerald-400 shadow-md' : 'bg-white text-slate-300 border-slate-100'}`}>
+                              {String.fromCharCode(65 + i)}
+                           </span>
+                           <span className={`text-lg font-bold tracking-tight ${i === correctOpt ? 'text-emerald-700' : 'text-slate-600'}`}>{opt}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 

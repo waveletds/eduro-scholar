@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, Users, Globe, Hash, Send, UserPlus, Heart, Search } from 'lucide-react';
 import { dbService } from '../../services/dbService';
-import { auth } from '../../services/firebase';
+import { supabase } from '../../lib/supabase';
 
 interface CommunityPageProps {
   profile: any;
@@ -95,16 +95,16 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden">
-                        <img src={post.authorPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.authorId}`} alt="author" />
+                        <img src={post.author_photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author_id}`} alt="author" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-bold text-slate-900 leading-none">{post.authorName}</p>
+                          <p className="font-bold text-slate-900 leading-none">{post.author_name}</p>
                           <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
                           <button className="text-[9px] font-bold text-primary uppercase tracking-widest hover:underline">Follow</button>
                         </div>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                          {post.createdAt?.toDate?.()?.toLocaleDateString() || 'Just now'}
+                          {post.created_at ? new Date(post.created_at).toLocaleDateString() : 'Just now'}
                         </p>
                       </div>
                     </div>
@@ -112,7 +112,7 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
                   <p className="text-lg text-slate-700 leading-relaxed font-medium">{post.content}</p>
                   <div className="flex items-center gap-8 pt-4 border-t border-slate-50">
                     <button className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors">
-                      <Heart size={16} /> {post.likesCount || 0}
+                      <Heart size={16} /> {post.likes_count || 0}
                     </button>
                     <button className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-primary transition-colors">
                       <MessageSquare size={16} /> Comment
@@ -152,21 +152,21 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
                   <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Global Broadcast active</div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-8 space-y-6">
-                   {forumMessages.map((msg, idx) => (
-                     <div key={idx} className={`flex gap-4 ${msg.authorId === profile.uid ? 'flex-row-reverse' : ''}`}>
-                        <div className="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden shrink-0 mt-1">
-                           <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${msg.authorId}`} alt="user" />
-                        </div>
-                        <div className={`space-y-1 max-w-[80%] ${msg.authorId === profile.uid ? 'text-right' : ''}`}>
-                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{msg.authorName}</p>
-                           <div className={`p-4 rounded-2xl ${msg.authorId === profile.uid ? 'bg-primary text-white' : 'bg-slate-50 text-slate-700'}`}>
-                              <p className="text-sm font-medium">{msg.text}</p>
-                           </div>
-                        </div>
-                     </div>
-                   ))}
-                </div>
+                 <div className="flex-1 overflow-y-auto p-8 space-y-6">
+                    {forumMessages.map((msg, idx) => (
+                      <div key={idx} className={`flex gap-4 ${msg.author_id === profile.uid ? 'flex-row-reverse' : ''}`}>
+                         <div className="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden shrink-0 mt-1">
+                            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${msg.author_id}`} alt="user" />
+                         </div>
+                         <div className={`space-y-1 max-w-[80%] ${msg.author_id === profile.uid ? 'text-right' : ''}`}>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{msg.author_name}</p>
+                            <div className={`p-4 rounded-2xl ${msg.author_id === profile.uid ? 'bg-primary text-white' : 'bg-slate-50 text-slate-700'}`}>
+                               <p className="text-sm font-medium">{msg.text}</p>
+                            </div>
+                         </div>
+                      </div>
+                    ))}
+                 </div>
 
                 <div className="p-6 border-t border-slate-50 bg-slate-50/30">
                   <div className="flex gap-4">

@@ -1,25 +1,18 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Trophy, PenTool, ArrowRight, Star, CheckCircle2 } from 'lucide-react';
-import { loginWithGoogle } from '../../services/firebase';
+import { AuthModal } from './AuthModal';
 
 export const LandingPage: React.FC = () => {
-  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
-
-  const handleLogin = async () => {
-    if (isLoggingIn) return;
-    setIsLoggingIn(true);
-    try {
-      await loginWithGoogle();
-    } catch (error) {
-      console.error("Login attempt failed:", error);
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white selection:bg-accent selection:text-primary">
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
+
       {/* Hero Section */}
       <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl glass rounded-3xl px-8 py-4 shadow-xl border border-white/40 flex items-center justify-between">
         <div className="flex items-center gap-3 cursor-pointer group">
@@ -31,11 +24,10 @@ export const LandingPage: React.FC = () => {
             </h1>
         </div>
         <button 
-          onClick={handleLogin}
-          disabled={isLoggingIn}
-          className="bg-slate-900 text-accent px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all hover:bg-slate-800 disabled:opacity-50"
+          onClick={() => setIsAuthModalOpen(true)}
+          className="bg-slate-900 text-accent px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all hover:bg-slate-800"
         >
-          {isLoggingIn ? 'Connecting...' : 'Access Portal'}
+          Access Portal
         </button>
       </nav>
 
@@ -61,18 +53,16 @@ export const LandingPage: React.FC = () => {
               <motion.button 
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={handleLogin}
-                disabled={isLoggingIn}
-                className="bg-primary text-white px-10 py-5 rounded-2xl font-bold text-lg uppercase tracking-wider shadow-lg flex items-center gap-3 disabled:opacity-50"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="bg-primary text-white px-10 py-5 rounded-2xl font-bold text-lg uppercase tracking-wider shadow-lg flex items-center gap-3"
               >
-                {isLoggingIn ? 'Synchronizing...' : <>Get Started <ArrowRight size={24} /></>}
+                Get Started <ArrowRight size={24} />
               </motion.button>
               <motion.button 
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={handleLogin}
-                disabled={isLoggingIn}
-                className="bg-white text-primary border border-slate-200 px-10 py-5 rounded-2xl font-bold text-lg uppercase tracking-wider shadow-sm hover:border-primary transition-all disabled:opacity-50"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="bg-white text-primary border border-slate-200 px-10 py-5 rounded-2xl font-bold text-lg uppercase tracking-wider shadow-sm hover:border-primary transition-all"
               >
                 Join Faculty
               </motion.button>
@@ -207,11 +197,10 @@ export const LandingPage: React.FC = () => {
                         <div className="h-16 bg-slate-50 rounded-[28px] border-2 border-slate-100 flex items-center px-6 font-black text-[10px] uppercase tracking-widest text-slate-400 neo-3d">Awaiting Credentials...</div>
                         <div className="h-16 bg-slate-50 rounded-[28px] border-2 border-slate-100 flex items-center px-6 font-black text-[10px] uppercase tracking-widest text-slate-400 neo-3d">Select Disciplines...</div>
                         <button 
-                          onClick={handleLogin}
-                          disabled={isLoggingIn}
-                          className="w-full bg-slate-900 text-accent py-6 rounded-[28px] font-black uppercase tracking-[0.3em] text-sm neo-3d-accent transition-all hover:scale-[1.02] disabled:opacity-50"
+                          onClick={() => setIsAuthModalOpen(true)}
+                          className="w-full bg-slate-900 text-accent py-6 rounded-[28px] font-black uppercase tracking-[0.3em] text-sm neo-3d-accent transition-all hover:scale-[1.02]"
                         >
-                            {isLoggingIn ? 'Authorizing Node...' : 'Become a Master'}
+                            Become a Master
                         </button>
                     </div>
                 </div>

@@ -37,7 +37,7 @@ export default function App() {
 
   if (user && !profile && !loading) {
      // Profile is being created or user needs to pick role
-     return <RoleSelection userId={user.uid} onComplete={() => window.location.reload()} />;
+     return <RoleSelection userId={user.id} onComplete={() => window.location.reload()} />;
   }
 
   const renderContent = () => {
@@ -45,7 +45,7 @@ export default function App() {
       return (
         <QuizPlayer 
           subject={selectedSubject} 
-          userId={user.uid}
+          userId={user.id}
           onExit={() => setSelectedSubject(null)}
           onComplete={(score) => {
             setLastQuizScore(score);

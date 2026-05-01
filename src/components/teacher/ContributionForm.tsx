@@ -13,7 +13,7 @@ import {
   Plus
 } from 'lucide-react';
 import { dbService } from '../../services/dbService';
-import { auth } from '../../services/firebase';
+import { supabase } from '../../lib/supabase';
 
 interface ContributionFormProps {
   onClose: () => void;
@@ -39,7 +39,8 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({ onClose, onS
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth.currentUser) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
     
     // Basic validation
     if (formData.text.length < 10) return setError('Question text is too short.');
@@ -52,8 +53,8 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({ onClose, onS
     try {
       await dbService.submitQuestion({
         ...formData,
-        creatorId: auth.currentUser.uid,
-        creatorName: auth.currentUser.displayName,
+        creatorId: user.id,
+        creatorName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Unknown Scholar',
       });
       onSuccess();
     } catch (err: any) {
