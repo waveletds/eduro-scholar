@@ -16,14 +16,16 @@ export const dbService = {
   },
 
   async createUserProfile(userId: string, data: any) {
-    // Map Firestore camelCase to Postgres snake_case if necessary, 
-    // but I'll keep them consistent for now or adapt
     const profileData = {
       id: userId,
       email: data.email,
       display_name: data.displayName,
+      username: data.username || `scholar_${Math.random().toString(36).substring(2, 9)}`,
+      gender: data.gender,
+      dob: data.dob,
+      registration_id: data.registrationId || `EDU-${Math.floor(100000 + Math.random() * 900000)}`,
       photo_url: data.photoURL,
-      role: data.role,
+      role: data.role || 'student',
       wallet_balance: data.walletBalance || 0,
       is_verified_teacher: data.isVerifiedTeacher || false,
       stats: data.stats || {},
@@ -39,6 +41,28 @@ export const dbService = {
       console.error('Error creating profile:', error);
       throw error;
     }
+  },
+
+  async updateProfile(userId: string, data: any) {
+    // Map camelCase to snake_case for profile update
+    const updateData: any = {};
+    if (data.displayName) updateData.display_name = data.displayName;
+    if (data.username) updateData.username = data.username;
+    if (data.gender) updateData.gender = data.gender;
+    if (data.dob) updateData.dob = data.dob;
+    if (data.status) updateData.status = data.status;
+    if (data.stream) updateData.stream = data.stream;
+    if (data.photoURL) updateData.photo_url = data.photoURL;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        ...updateData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId);
+    
+    if (error) throw error;
   },
 
   // Questions
@@ -371,7 +395,7 @@ export const dbService = {
       .from('profiles')
       .select('*')
       .eq('role', 'student')
-      .or(`display_name.ilike.%${searchTerm}%,stream.ilike.%${searchTerm}%`)
+      .or(`display_name.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%,wallet_id.eq.${searchTerm},registration_id.eq.${searchTerm}`)
       .limit(20);
     
     if (error) throw error;

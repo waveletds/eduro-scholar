@@ -11,6 +11,10 @@ interface ProfilePageProps {
 export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
   const [status, setStatus] = useState(profile.status || "Hello, I'm using Eduro Scholar!");
   const [stream, setStream] = useState(profile.stream || 'Science');
+  const [displayName, setDisplayName] = useState(profile.displayName || '');
+  const [username, setUsername] = useState(profile.username || '');
+  const [gender, setGender] = useState(profile.gender || 'male');
+  const [dob, setDob] = useState(profile.dob || '');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [posts, setPosts] = useState<any[]>([]);
   const [newPostContent, setNewPostContent] = useState('');
@@ -26,9 +30,18 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
     setPosts(allPosts?.filter((p: any) => p.author_id === profile.uid) || []);
   };
 
-  const handleUpdateSocial = async () => {
-    await dbService.updateUserSocial(profile.uid, { status, stream });
+  const handleUpdateProfile = async () => {
+    await dbService.updateProfile(profile.uid, { 
+      status, 
+      stream, 
+      displayName, 
+      username, 
+      gender, 
+      dob 
+    });
     setIsEditingProfile(false);
+    // Note: The parent component should refresh the profile prop
+    alert('Identity Node Synchronized');
   };
 
   const handleCreatePost = async () => {
@@ -97,48 +110,85 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
                     {stream} Student
                   </span>
                 </div>
-                <AnimatePresence mode="wait">
-                  {isEditingProfile ? (
-                    <motion.div 
-                      key="editing"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="mt-4 space-y-4"
-                    >
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Digital Status</label>
-                        <input 
-                          value={status}
-                          onChange={(e) => setStatus(e.target.value)}
-                          className="w-full h-12 px-6 rounded-2xl bg-slate-50 border border-slate-100 focus:border-primary outline-none transition-all"
-                          placeholder="What's on your mind?"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Academic Stream</label>
-                        <div className="flex gap-2">
-                          {['Science', 'Art', 'Commercial'].map(s => (
-                            <button
-                              key={s}
-                              onClick={() => setStream(s)}
-                              className={`flex-1 h-12 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all ${
-                                stream === s ? 'bg-primary text-white border-primary shadow-md' : 'bg-white text-slate-400 border-slate-100'
-                              }`}
+                        <AnimatePresence mode="wait">
+                          {isEditingProfile ? (
+                            <motion.div 
+                              key="editing"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 p-6 rounded-3xl border border-slate-100"
                             >
-                              {s}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <button 
-                        onClick={handleUpdateSocial}
-                        className="w-full bg-slate-900 text-white h-12 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg"
-                      >
-                        Synchronize Updates
-                      </button>
-                    </motion.div>
-                  ) : (
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Display Name</label>
+                                <input 
+                                  value={displayName}
+                                  onChange={(e) => setDisplayName(e.target.value)}
+                                  className="w-full h-11 px-4 rounded-xl bg-white border border-slate-100 focus:border-primary outline-none transition-all text-sm font-medium"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Unique Username</label>
+                                <input 
+                                  value={username}
+                                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
+                                  className="w-full h-11 px-4 rounded-xl bg-white border border-slate-100 focus:border-primary outline-none transition-all text-sm font-medium"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Biological Gender</label>
+                                <select 
+                                  value={gender}
+                                  onChange={(e) => setGender(e.target.value)}
+                                  className="w-full h-11 px-4 rounded-xl bg-white border border-slate-100 focus:border-primary outline-none transition-all text-sm font-medium appearance-none"
+                                >
+                                  <option value="male">Male</option>
+                                  <option value="female">Female</option>
+                                  <option value="other">Other</option>
+                                </select>
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Date of Birth</label>
+                                <input 
+                                  type="date"
+                                  value={dob}
+                                  onChange={(e) => setDob(e.target.value)}
+                                  className="w-full h-11 px-4 rounded-xl bg-white border border-slate-100 focus:border-primary outline-none transition-all text-sm font-medium"
+                                />
+                              </div>
+                              <div className="md:col-span-2 space-y-1">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Node Status</label>
+                                <input 
+                                  value={status}
+                                  onChange={(e) => setStatus(e.target.value)}
+                                  className="w-full h-11 px-4 rounded-xl bg-white border border-slate-100 focus:border-primary outline-none transition-all text-sm font-medium"
+                                  placeholder="What's your current logic state?"
+                                />
+                              </div>
+                              <div className="md:col-span-2 space-y-1">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Knowledge Stream</label>
+                                <div className="flex gap-2">
+                                  {['Science', 'Art', 'Commercial'].map(s => (
+                                    <button
+                                      key={s}
+                                      onClick={() => setStream(s)}
+                                      className={`flex-1 h-10 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${
+                                        stream === s ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-slate-400 border-slate-100'
+                                      }`}
+                                    >
+                                      {s} HUB
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              <button 
+                                onClick={handleUpdateProfile}
+                                className="md:col-span-2 w-full bg-slate-900 text-accent h-12 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg hover:shadow-primary/20 transition-all mt-4"
+                              >
+                                Synchronize Identity
+                              </button>
+                            </motion.div>
+                          ) : (
                     <motion.p 
                       key="viewing"
                       initial={{ opacity: 0 }}
@@ -178,7 +228,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
                  </div>
                  <div className="flex items-center justify-between">
                     <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Reg ID</span>
-                    <span className="text-[8px] md:text-[10px] font-bold text-slate-900 uppercase">EDU-{profile.uid.substring(0, 8)}</span>
+                    <span className="text-[8px] md:text-[10px] font-bold text-slate-900 uppercase">{profile.registrationId || `EDU-${profile.uid.substring(0, 8)}`}</span>
                  </div>
                  <div className="flex items-center justify-between">
                     <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Logic Node</span>

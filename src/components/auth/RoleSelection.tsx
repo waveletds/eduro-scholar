@@ -13,6 +13,14 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ userId, onComplete
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Basic info fields
+  const [basicInfo, setBasicInfo] = useState({
+    displayName: '',
+    username: '',
+    gender: 'male',
+    dob: ''
+  });
+
   // Teacher profile fields
   const [teacherData, setTeacherData] = useState({
     qualifications: '',
@@ -32,8 +40,13 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ userId, onComplete
   };
 
   const handleStart = async () => {
-    if (selectedRole === 'teacher' && step === 1) {
+    if (step === 1) {
       setStep(2);
+      return;
+    }
+
+    if (selectedRole === 'teacher' && step === 2) {
+      setStep(3);
       return;
     }
 
@@ -42,6 +55,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ userId, onComplete
       await dbService.createUserProfile(userId, {
         uid: userId,
         role: selectedRole,
+        ...basicInfo,
         walletBalance: 0,
         isVerifiedTeacher: false,
         teacherProfile: selectedRole === 'teacher' ? {
@@ -81,10 +95,10 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ userId, onComplete
         <div className="text-center space-y-4">
           <div className="inline-block px-4 py-2 bg-primary/5 rounded-xl text-[10px] font-bold text-primary uppercase tracking-widest border border-primary/10">Welcome</div>
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-            Select Your <span className="text-primary rounded-2xl">Identity</span>
+            Initialize Your <span className="text-primary rounded-2xl">Identity</span>
           </h1>
           <p className="text-slate-400 font-medium tracking-tight text-sm max-w-sm mx-auto leading-relaxed">
-            Choose your role to customize your specialized learning interface and permissions.
+            Configure your scholar node and select your specialized interface.
           </p>
         </div>
 
@@ -92,6 +106,65 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ userId, onComplete
           {step === 1 ? (
             <motion.div 
               key="step1"
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -50, opacity: 0 }}
+              className="bg-white p-8 md:p-12 rounded-[60px] shadow-3d border-4 border-slate-100 space-y-10"
+            >
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Real Name</label>
+                  <input 
+                    type="text"
+                    placeholder="FULL NAME..."
+                    className="w-full bg-slate-50 border-4 border-slate-100 rounded-3xl p-6 text-sm font-black uppercase tracking-widest focus:border-primary outline-none transition-all neo-3d"
+                    value={basicInfo.displayName}
+                    onChange={e => setBasicInfo({...basicInfo, displayName: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Unique Handle</label>
+                  <input 
+                    type="text"
+                    placeholder="USERNAME..."
+                    className="w-full bg-slate-50 border-4 border-slate-100 rounded-3xl p-6 text-sm font-black uppercase tracking-widest focus:border-primary outline-none transition-all neo-3d"
+                    value={basicInfo.username}
+                    onChange={e => setBasicInfo({...basicInfo, username: e.target.value.toLowerCase().replace(/\s/g, '')})}
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Biological Gender</label>
+                  <div className="flex gap-4">
+                    {['male', 'female', 'other'].map(g => (
+                      <button 
+                        key={g}
+                        onClick={() => setBasicInfo({...basicInfo, gender: g})}
+                        className={`flex-1 h-16 rounded-2xl font-black uppercase text-[10px] tracking-widest border-4 transition-all ${
+                          basicInfo.gender === g ? 'bg-primary border-primary text-white neo-3d-accent' : 'bg-white border-slate-100 text-slate-300'
+                        }`}
+                      >
+                        {g}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Temporal Marker (DOB)</label>
+                  <input 
+                    type="date"
+                    className="w-full bg-slate-50 border-4 border-slate-100 rounded-3xl p-6 text-sm font-black uppercase tracking-widest focus:border-primary outline-none transition-all neo-3d"
+                    value={basicInfo.dob}
+                    onChange={e => setBasicInfo({...basicInfo, dob: e.target.value})}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          ) : step === 2 ? (
+            <motion.div 
+              key="step2"
               initial={{ x: 50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -50, opacity: 0 }}
@@ -149,7 +222,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ userId, onComplete
             </motion.div>
           ) : (
             <motion.div 
-              key="step2"
+              key="step3"
               initial={{ x: 50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -50, opacity: 0 }}
@@ -205,7 +278,7 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ userId, onComplete
                 </div>
               </div>
               
-              <button onClick={() => setStep(1)} className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] hover:text-primary transition-colors block w-full text-center">
+              <button onClick={() => setStep(2)} className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] hover:text-primary transition-colors block w-full text-center">
                 ← Re-initialize Avatar Sync
               </button>
             </motion.div>
@@ -216,10 +289,14 @@ export const RoleSelection: React.FC<RoleSelectionProps> = ({ userId, onComplete
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleStart}
-          disabled={isSubmitting || (selectedRole === 'teacher' && step === 2 && (teacherData.subjects.length === 0 || !teacherData.qualifications))}
+          disabled={
+            isSubmitting || 
+            (step === 1 && (!basicInfo.displayName || !basicInfo.username || !basicInfo.dob)) ||
+            (selectedRole === 'teacher' && step === 3 && (teacherData.subjects.length === 0 || !teacherData.qualifications))
+          }
           className="bg-slate-900 text-white px-12 py-6 rounded-2xl font-bold text-lg tracking-tight transition-all flex items-center gap-4 mx-auto disabled:opacity-50 group shadow-xl"
         >
-          {isSubmitting ? 'Finalizing...' : step === 1 && selectedRole === 'teacher' ? 'Continue' : 'Start Journey'} 
+          {isSubmitting ? 'Finalizing...' : (step === 1 || (step === 2 && selectedRole === 'teacher')) ? 'Continue' : 'Start Journey'} 
           <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
         </motion.button>
       </motion.div>

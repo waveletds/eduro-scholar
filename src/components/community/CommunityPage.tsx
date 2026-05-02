@@ -446,11 +446,14 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
               <input 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Name or Stream..."
+                placeholder="Username, Wallet ID, or Reg ID..."
                 className="w-full h-12 pl-12 pr-6 rounded-2xl bg-slate-50 border border-slate-100 focus:border-primary outline-none transition-all text-sm font-medium"
               />
               <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
             </div>
+            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest px-2 leading-relaxed">
+              Synchronize with any scholar via their unique handle, wallet node, or registration signature.
+            </p>
 
             {/* Search Results */}
             <AnimatePresence>
@@ -474,12 +477,17 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
                             <img src={scholar.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${scholar.id}`} alt="profile" />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-bold text-slate-900 truncate">{scholar.display_name}</p>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold text-slate-900 truncate">{scholar.display_name}</p>
+                              {scholar.username && <span className="text-[10px] font-bold text-primary">@{scholar.username}</span>}
+                            </div>
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[8px] font-bold uppercase tracking-wider">
                                 {scholar.stream || 'General'}
                               </span>
-                              <p className="text-[10px] text-slate-400 font-medium truncate">{scholar.status || 'Active Scholar'}</p>
+                              <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[8px] font-bold uppercase tracking-wider">
+                                {scholar.registration_id || `EDU-${scholar.id.substring(0,6)}`}
+                              </span>
                             </div>
                           </div>
                           <div className="flex items-center gap-1">
