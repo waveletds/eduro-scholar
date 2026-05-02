@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquare, Users, Globe, Hash, Send, UserPlus, Heart, Search } from 'lucide-react';
+import { MessageSquare, Users, Globe, Hash, Send, UserPlus, Heart, Search, Play } from 'lucide-react';
 import { dbService } from '../../services/dbService';
 import { supabase } from '../../lib/supabase';
 
@@ -13,8 +13,17 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
   const [posts, setPosts] = useState<any[]>([]);
   const [forumMessages, setForumMessages] = useState<any[]>([]);
   const [activeForum, setActiveForum] = useState<string>('General');
+  const [activeHub, setActiveHub] = useState<string>('General');
   const [newMessage, setNewMessage] = useState('');
+  const [newPostContent, setNewPostContent] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+
+  // Chat State
+  const [chatPartners, setChatPartners] = useState<any[]>([]);
+  const [selectedPartner, setSelectedPartner] = useState<any>(null);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatInput, setChatInput] = useState('');
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,7 +33,12 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
   useEffect(() => {
     if (activeTab === 'timeline') loadPosts();
     if (activeTab === 'forums') loadForumMessages();
-  }, [activeTab, activeForum]);
+    if (activeTab === 'chat') loadChatPartners();
+  }, [activeTab, activeForum, activeHub]);
+
+  useEffect(() => {
+    if (selectedPartner) loadChatMessages();
+  }, [selectedPartner]);
 
   // Debounced Search
   useEffect(() => {
@@ -46,8 +60,52 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
   }, [searchQuery]);
 
   const loadPosts = async () => {
-    const allPosts = await dbService.getPosts();
+    const allPosts = await dbService.getPosts(activeHub);
     setPosts(allPosts || []);
+  };
+
+  const handleCreatePost = async () => {
+    if (!newPostContent.trim()) return;
+    setIsPosting(true);
+    try {
+      await dbService.createPost({
+        authorId: profile.uid,
+        authorName: profile.displayName,
+        authorPhoto: profile.photoURL,
+        content: newPostContent,
+        hub: activeHub
+      });
+      setNewPostContent('');
+      loadPosts();
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  const loadChatPartners = async () => {
+    const partners = await dbService.getRecentChatPartners(profile.uid);
+    setChatPartners(partners || []);
+  };
+
+  const loadChatMessages = async () => {
+    if (!selectedPartner) return;
+    const messages = await dbService.getChatMessages(profile.uid, selectedPartner.id);
+    setChatMessages(messages || []);
+  };
+
+  const handleSendChatMessage = async () => {
+    if (!chatInput.trim() || !selectedPartner) return;
+    try {
+      await dbService.sendChatMessage({
+        senderId: profile.uid,
+        receiverId: selectedPartner.id,
+        text: chatInput
+      });
+      setChatInput('');
+      loadChatMessages();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const loadForumMessages = async () => {
@@ -108,7 +166,54 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
         {/* Main Content Area */}
         <div className="md:col-span-2 space-y-6 md:space-y-8 min-h-[400px] md:min-h-[600px]">
           {activeTab === 'timeline' && (
-            <div className="space-y-6">
+            <div className="space-y-8">
+              {/* Create Post */}
+              <div className="bg-white p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-sm space-y-6">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden shrink-0">
+                       <img src={profile.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.uid}`} alt="me" />
+                    </div>
+                    <div className="flex-1">
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Broadcasting as {profile.displayName}</p>
+                       <textarea 
+                         value={newPostContent}
+                         onChange={(e) => setNewPostContent(e.target.value)}
+                         placeholder="Share educational data, logic snippets, or questions..."
+                         className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-medium outline-none focus:border-primary transition-all resize-none h-24"
+                       />
+                    </div>
+                 </div>
+                 
+                 <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center gap-3">
+                      <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                         {['General', 'Science', 'Art', 'Commercial'].map(h => (
+                           <button 
+                             key={h}
+                             onClick={() => setActiveHub(h)}
+                             className={`shrink-0 px-4 h-9 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${
+                               activeHub === h ? 'bg-primary text-white border-primary shadow-md' : 'bg-white text-slate-400 border-slate-100'
+                             }`}
+                           >
+                             {h} HUB
+                           </button>
+                         ))}
+                      </div>
+                      <button className="w-9 h-9 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-slate-100 transition-colors border border-dashed border-slate-200">
+                        <Play size={14} className="rotate-90" />
+                      </button>
+                    </div>
+                    
+                    <button 
+                      onClick={handleCreatePost}
+                      disabled={isPosting || !newPostContent.trim()}
+                      className="bg-slate-900 text-white px-8 h-12 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50"
+                    >
+                      {isPosting ? 'Propagating...' : 'Post Logic'}
+                    </button>
+                 </div>
+              </div>
+
               {posts.map((post) => (
                 <motion.div 
                   key={post.id}
@@ -216,15 +321,116 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
           )}
 
           {activeTab === 'chat' && (
-            <div className="flex flex-col items-center justify-center h-[600px] text-center space-y-8 bg-slate-50/50 rounded-[64px] border-4 border-dashed border-slate-100">
-               <div className="w-24 h-24 bg-white rounded-3xl border border-slate-100 flex items-center justify-center text-slate-200 shadow-sm">
-                  <MessageSquare size={48} />
+            <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden flex flex-col md:flex-row h-[600px]">
+               {/* Contact List */}
+               <div className="w-full md:w-80 border-r border-slate-50 flex flex-col h-full bg-slate-50/20">
+                  <div className="p-6 border-b border-slate-50">
+                     <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Recent Signals</h3>
+                  </div>
+                  <div className="flex-1 overflow-y-auto">
+                     {chatPartners.length === 0 ? (
+                       <div className="p-8 text-center space-y-4 pt-12">
+                          <div className="w-12 h-12 bg-white rounded-2xl mx-auto flex items-center justify-center text-slate-200 border border-slate-100 italic">?</div>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-loose">No active neural links. Search for scholars to begin synchronization.</p>
+                       </div>
+                     ) : (
+                       chatPartners.map(partner => (
+                         <div 
+                           key={partner.id}
+                           onClick={() => setSelectedPartner(partner)}
+                           className={`p-6 flex items-center gap-4 cursor-pointer transition-all border-b border-transparent ${
+                             selectedPartner?.id === partner.id ? 'bg-white border-l-4 border-l-primary shadow-sm' : 'hover:bg-slate-50'
+                           }`}
+                         >
+                           <div className="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border-2 border-white shadow-sm">
+                              <img src={partner.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${partner.id}`} alt="partner" />
+                           </div>
+                           <div className="min-w-0">
+                              <p className="font-bold text-slate-900 truncate leading-none mb-1">{partner.display_name}</p>
+                              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest truncate">{partner.stream || 'General'} Engineer</p>
+                           </div>
+                         </div>
+                       ))
+                     )}
+                  </div>
                </div>
-               <div className="space-y-2">
-                 <h2 className="text-2xl font-bold uppercase tracking-tight text-slate-900">Neural DM Portal</h2>
-                 <p className="text-sm text-slate-400 max-w-xs mx-auto">Direct student-to-student encrypted messaging is currently optimizing. Check back soon for safe-space collaboration.</p>
+
+               {/* Chat Window */}
+               <div className="flex-1 flex flex-col h-full bg-white">
+                  {selectedPartner ? (
+                    <>
+                      <div className="p-6 border-b border-slate-50 flex items-center justify-between">
+                         <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-slate-900 overflow-hidden">
+                               <img src={selectedPartner.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedPartner.id}`} alt="p" />
+                            </div>
+                            <div>
+                               <h4 className="font-bold text-slate-900 leading-none">{selectedPartner.display_name}</h4>
+                               <p className="text-[8px] font-bold text-emerald-500 uppercase tracking-widest mt-1">Live Endpoint</p>
+                            </div>
+                         </div>
+                         <button className="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-slate-100 transition-colors">
+                            <Hash size={16} />
+                         </button>
+                      </div>
+
+                      <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/20">
+                         {chatMessages.length === 0 && (
+                            <div className="h-full flex items-center justify-center">
+                               <div className="text-center space-y-4">
+                                  <div className="w-16 h-16 bg-white rounded-[24px] mx-auto flex items-center justify-center text-slate-100 border border-slate-50">
+                                     <MessageSquare size={32} />
+                                  </div>
+                                  <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Beginning data exchange...</p>
+                               </div>
+                            </div>
+                         )}
+                         {chatMessages.map((msg, i) => (
+                           <div key={i} className={`flex ${msg.sender_id === profile.uid ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`max-w-[75%] p-4 rounded-2xl shadow-sm ${
+                                msg.sender_id === profile.uid ? 'bg-primary text-white rounded-tr-none' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
+                              }`}>
+                                 <p className="text-sm font-medium">{msg.text}</p>
+                                 <p className={`text-[7px] font-bold uppercase tracking-widest mt-1.5 ${msg.sender_id === profile.uid ? 'text-white/50' : 'text-slate-300'}`}>
+                                    {msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Syncing...'}
+                                 </p>
+                              </div>
+                           </div>
+                         ))}
+                      </div>
+
+                      <div className="p-6 bg-white">
+                         <div className="flex gap-4">
+                            <input 
+                              value={chatInput}
+                              onChange={(e) => setChatInput(e.target.value)}
+                              onKeyPress={(e) => e.key === 'Enter' && handleSendChatMessage()}
+                              placeholder={`Secure sync with ${selectedPartner.display_name}...`}
+                              className="flex-1 h-14 px-8 rounded-2xl bg-slate-50 border border-transparent outline-none focus:bg-white focus:border-primary transition-all font-medium text-slate-900"
+                            />
+                            <motion.button 
+                              whileTap={{ scale: 0.95 }}
+                              onClick={handleSendChatMessage}
+                              className="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg hover:shadow-primary/30 transition-all"
+                            >
+                               <Send size={20} />
+                            </motion.button>
+                         </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center space-y-10 p-12 text-center opacity-60 grayscale">
+                       <div className="relative">
+                          <div className="w-32 h-32 bg-slate-50 rounded-[48px] animate-pulse"></div>
+                          <MessageSquare size={64} className="absolute inset-0 m-auto text-slate-200" />
+                       </div>
+                       <div className="space-y-4">
+                         <h3 className="text-xl font-bold uppercase tracking-tight text-slate-400 italic">Awaiting Synchronicity</h3>
+                         <p className="text-[10px] text-slate-300 font-bold uppercase tracking-[0.2em] max-w-xs leading-loose">Select a scholar from your neural signals to initiate data propagation.</p>
+                       </div>
+                    </div>
+                  )}
                </div>
-               <button className="bg-primary text-white px-8 h-12 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg">Request Beta Access</button>
             </div>
           )}
         </div>
@@ -276,20 +482,32 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
                               <p className="text-[10px] text-slate-400 font-medium truncate">{scholar.status || 'Active Scholar'}</p>
                             </div>
                           </div>
-                          <button 
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              try {
-                                await dbService.followUser(profile.uid, scholar.id);
-                                console.log(`Now following ${scholar.display_name}`);
-                              } catch (err) {
-                                console.error(err);
-                              }
-                            }}
-                            className="w-8 h-8 rounded-lg bg-slate-50 text-slate-300 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all"
-                          >
-                            <UserPlus size={14} />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button 
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                  await dbService.followUser(profile.uid, scholar.id);
+                                  console.log(`Now following ${scholar.display_name}`);
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }}
+                              className="w-8 h-8 rounded-lg bg-slate-50 text-slate-300 flex items-center justify-center hover:bg-primary hover:text-white transition-all"
+                            >
+                              <UserPlus size={14} />
+                            </button>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPartner(scholar);
+                                setActiveTab('chat');
+                              }}
+                              className="w-8 h-8 rounded-lg bg-slate-50 text-slate-300 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all"
+                            >
+                              <MessageSquare size={14} />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -332,7 +550,7 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ profile }) => {
           {/* Guidelines */}
           <div className="bg-emerald-50 p-8 rounded-[40px] border border-emerald-100 space-y-6">
             <h3 className="font-bold text-[10px] uppercase tracking-widest text-emerald-900 flex items-center gap-2">
-              <globe size={16} /> Community Protocol
+              <Globe size={16} /> Community Protocol
             </h3>
             <ul className="space-y-4">
               {[

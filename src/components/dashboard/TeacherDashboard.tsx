@@ -17,9 +17,10 @@ import { TransactionHistory } from '../wallet/TransactionHistory';
 interface TeacherDashboardProps {
   profile: any;
   onAddQuestion: () => void;
+  setView: (view: string) => void;
 }
 
-export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ profile, onAddQuestion }) => {
+export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ profile, onAddQuestion, setView }) => {
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'questions' | 'wallet'>('questions');
@@ -191,8 +192,15 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ profile, onA
                 <h3 className="font-bold text-lg md:text-xl leading-none uppercase tracking-tight text-accent">Payment Status</h3>
                 <p className="text-[10px] md:text-xs text-slate-400 font-medium leading-relaxed">Minimum payout: ₦5,000 via local bank transfer.</p>
               </div>
-              <button className="w-full bg-white text-primary py-3.5 md:py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] md:text-[11px] transition-all hover:bg-accent shadow-lg">
-                Configure Payout
+              <button 
+                onClick={() => setView('wallet')}
+                className={`w-full py-3.5 md:py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] md:text-[11px] transition-all shadow-lg ${
+                  profile.monnifyAccountNumber 
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-600' 
+                    : 'bg-white text-primary hover:bg-accent ring-2 ring-rose-300'
+                }`}
+              >
+                {profile.monnifyAccountNumber ? 'View Node Details' : 'Initialize Funding Node'}
               </button>
             </div>
             <div className="absolute -top-20 -right-20 w-48 h-48 bg-accent/5 rounded-full blur-3xl"></div>

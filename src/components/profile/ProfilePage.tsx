@@ -181,6 +181,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
                     <span className="text-[8px] md:text-[10px] font-bold text-slate-900 uppercase">EDU-{profile.uid.substring(0, 8)}</span>
                  </div>
                  <div className="flex items-center justify-between">
+                    <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Logic Node</span>
+                    <span className={`text-[8px] md:text-[10px] font-bold uppercase tracking-wider ${profile.monnifyAccountNumber ? 'text-emerald-500' : 'text-rose-500'}`}>
+                      {profile.monnifyAccountNumber ? 'Active Sync' : 'In-active'}
+                    </span>
+                 </div>
+                 <div className="flex items-center justify-between">
                     <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rank</span>
                     <span className="text-[8px] md:text-[10px] font-bold text-emerald-600 uppercase">Scholar Prime</span>
                  </div>

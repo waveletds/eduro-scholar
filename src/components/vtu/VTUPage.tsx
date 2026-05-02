@@ -36,15 +36,26 @@ export const VTUPage: React.FC<VTUPageProps> = ({ profile }) => {
   const handlePurchase = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!network || !amount || !phone) return;
-    if (parseInt(amount) > profile.walletBalance) return alert("Insufficient funds");
+    
+    // Basic validation
+    if (phone.length < 10) return alert("Invalid phone number");
+    if (parseInt(amount) < 100) return alert("Minimum purchase is ₦100");
+    if (parseInt(amount) > (profile.walletBalance || 0)) return alert("Insufficient funds in your scholar node");
 
     setLoading(true);
-    // Simulate API call to VTU provider
-    setTimeout(() => {
-        setLoading(false);
-        setSuccess(true);
-        // In real app, call dbService.purchaseVTU which deducts from wallet
-    }, 2000);
+    try {
+      await dbService.payUtility(profile.uid, {
+        type: type,
+        amount: parseInt(amount),
+        detail: `${network.toUpperCase()} ${phone}`,
+        description: `${type.charAt(0).toUpperCase() + type.slice(1)} sync for ${phone}`
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      alert(err.message || "Financial link interrupted. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (success) {

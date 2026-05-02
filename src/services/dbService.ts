@@ -252,6 +252,7 @@ export const dbService = {
         author_photo: data.authorPhoto,
         content: data.content,
         image: data.image,
+        hub: data.hub || 'General',
         likes_count: 0,
         created_at: new Date().toISOString()
       }])
@@ -262,15 +263,68 @@ export const dbService = {
     return result;
   },
 
-  async getPosts() {
-    const { data, error } = await supabase
+  async getPosts(hub?: string) {
+    let query = supabase
       .from('posts')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(50);
     
+    if (hub && hub !== 'General') {
+      query = query.eq('hub', hub);
+    }
+    
+    const { data, error } = await query;
     if (error) throw error;
     return data;
+  },
+
+  async toggleLikePost(postId: string, userId: string, currentLikes: number) {
+    // This is a simplified like toggle
+    const { error } = await supabase
+      .from('posts')
+      .update({ likes_count: currentLikes + 1 })
+      .eq('id', postId);
+    
+    if (error) throw error;
+  },
+
+  async getChatMessages(user1Id: string, user2Id: string) {
+    const { data, error } = await supabase
+      .from('chats')
+      .select('*')
+      .or(`and(sender_id.eq.${user1Id},receiver_id.eq.${user2Id}),and(sender_id.eq.${user2Id},receiver_id.eq.${user1Id})`)
+      .order('created_at', { ascending: true });
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getRecentChatPartners(userId: string) {
+    // This gets unique users the current user has chatted with
+    const { data, error } = await supabase
+      .from('chats')
+      .select('sender_id, receiver_id')
+      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    const partnerIds = new Set<string>();
+    data?.forEach(chat => {
+      if (chat.sender_id !== userId) partnerIds.add(chat.sender_id);
+      if (chat.receiver_id !== userId) partnerIds.add(chat.receiver_id);
+    });
+    
+    if (partnerIds.size === 0) return [];
+    
+    const { data: profiles, error: pError } = await supabase
+      .from('profiles')
+      .select('id, display_name, photo_url, stream, status')
+      .in('id', Array.from(partnerIds));
+      
+    if (pError) throw pError;
+    return profiles;
   },
 
   async sendChatMessage(data: any) {

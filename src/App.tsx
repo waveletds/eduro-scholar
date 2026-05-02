@@ -119,11 +119,12 @@ export default function App() {
       case 'dashboard':
         if (profile.role === 'admin') return <ModerationDashboard />;
         return profile.role === 'teacher' ? (
-          <TeacherDashboard profile={profile} onAddQuestion={() => setShowContribute(true)} />
+          <TeacherDashboard profile={profile} onAddQuestion={() => setShowContribute(true)} setView={setView} />
         ) : (
           <StudentDashboard 
               profile={profile} 
               onStartPractice={(subject) => setSelectedSubject(subject)} 
+              setView={setView}
           />
         );
       

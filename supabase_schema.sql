@@ -108,6 +108,7 @@ BEGIN
           author_photo text,
           content text,
           image text,
+          hub text default 'General',
           likes_count int default 0,
           created_at timestamp with time zone default timezone('utc'::text, now()) not null
         );

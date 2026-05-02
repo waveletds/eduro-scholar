@@ -63,14 +63,19 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
   }, [profile.uid]);
 
   const loadVirtualAccount = async () => {
+    if (isLoading) return;
     setIsLoading(true);
     setError('');
     try {
       const data = await dbService.getVirtualAccount(profile.uid, profile.displayName, profile.email);
       if (data && !data.error) {
         setMonnifyAccount(data);
+        setSuccess('Neural node successfully established.');
+        // Refresh page or update parent profile if needed
       } else if (data && data.error) {
         setError(data.error);
+      } else {
+        setError('Banking node did not respond to ping.');
       }
     } catch (err: any) {
       setError('Connection to banking node interrupted.');
@@ -386,12 +391,17 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
 
           {/* Monnify Dedicated Account Card */}
           <div className="bg-emerald-50 rounded-[32px] md:rounded-[48px] p-6 md:p-10 border border-emerald-100 shadow-sm space-y-6 relative overflow-hidden group">
-             <div className="flex items-center justify-between relative z-10">
+              <div className="flex items-center justify-between relative z-10">
                 <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl md:rounded-[24px] bg-white flex items-center justify-center text-emerald-600 shadow-sm">
                    <Building size={24} className="md:w-7 md:h-7" />
                 </div>
-                <div className="text-[8px] md:text-[10px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-2 px-3 md:px-4 py-1.5 bg-white/50 rounded-full border border-emerald-200">
-                   Secured Node <ShieldCheck size={12} className="md:w-[14px] md:h-[14px]" />
+                <div className="flex flex-col items-end gap-1">
+                  <div className="text-[8px] md:text-[10px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-2 px-3 md:px-4 py-1.5 bg-white/50 rounded-full border border-emerald-200">
+                     Secured Node <ShieldCheck size={12} className="md:w-[14px] md:h-[14px]" />
+                  </div>
+                  {monnifyAccount?.isSimulation && (
+                    <span className="text-[7px] text-rose-500 font-black uppercase tracking-widest">Simulation Mode</span>
+                  )}
                 </div>
              </div>
              
@@ -411,23 +421,37 @@ export const WalletPage: React.FC<WalletPageProps> = ({ profile }) => {
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                     {isLoading ? (
-                       <div className="animate-pulse space-y-4">
-                          <div className="h-10 w-full bg-emerald-200/50 rounded-2xl"></div>
-                          <div className="h-6 w-1/2 bg-emerald-200/50 rounded-xl"></div>
-                       </div>
-                     ) : (
-                       <div className="space-y-4">
-                          <p className="text-[10px] text-emerald-600 font-bold uppercase leading-relaxed">No active funding node detected.</p>
-                          <button 
-                            onClick={loadVirtualAccount}
-                            className="w-full h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg"
-                          >
-                             Generate Node Address
-                          </button>
-                       </div>
-                     )}
+                  <div className="space-y-6">
+                    {isLoading ? (
+                      <div className="animate-pulse space-y-6">
+                        <div className="h-10 w-full bg-emerald-100 rounded-2xl"></div>
+                        <div className="h-20 w-full bg-emerald-100/50 rounded-2xl"></div>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-3">
+                           <div className="w-2.5 h-2.5 bg-rose-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.6)]"></div>
+                           <p className="text-[10px] md:text-[11px] text-rose-600 font-black uppercase tracking-[0.2em]">In-active Logic Node</p>
+                        </div>
+                        
+                        <div className="bg-white/60 backdrop-blur-md p-6 rounded-[32px] border border-emerald-100 shadow-inner">
+                           <p className="text-[10px] md:text-[11px] text-slate-500 font-medium leading-relaxed italic">
+                              Your account requires a unique banking node to receive scholarship yields. Click below to synchronize with our financial network.
+                           </p>
+                        </div>
+
+                        <motion.button 
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={loadVirtualAccount}
+                          className="w-full h-16 bg-slate-900 text-white rounded-[24px] flex items-center justify-center gap-4 text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all shadow-2xl relative group overflow-hidden"
+                        >
+                           <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                           <Zap size={20} className="text-accent group-hover:rotate-12 transition-transform relative z-10" />
+                           <span className="relative z-10">Initialize Node Address</span>
+                        </motion.button>
+                      </div>
+                    )}
                   </div>
                 )}
              </div>
